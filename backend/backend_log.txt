@@ -1,0 +1,452 @@
+INFO:     Will watch for changes in these directories: ['C:\\Users\\Rohit\\OneDrive\\Desktop\\MGFV\\backend']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [20520] using WatchFiles
+C:\Users\Rohit\OneDrive\Desktop\mg2\backend\env1\lib\site-packages\pydantic\_internal\_config.py:373: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+INFO:     Started server process [20576]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85qnd1ju HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59057 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85pvmxy5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59052 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85pvp7zl HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85qne4nd HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59057 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85qnflnd HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59052 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85qngn8t HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85qnhmh1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59062 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=2EtsNbyCr4WkM4IYAAAA" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:59057 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85qnidog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85rfaxb2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59052 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85rf97i6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59057 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85s6ud77 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85s6vs9i HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59052 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85s6wzkw HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59057 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85s6x8u9 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59063 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=xXLzaTVtoJdsv6u8AAAB" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85syk1uh HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59052 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85syljyf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59057 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85symieg HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59053 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85synwti HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85syopkz HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59052 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85syqwv6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59057 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tjdzta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59053 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tjgj5q HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59064 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=vTVnuqrnfnvsIxBpAAAC" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tl4kyp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59052 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tn9lzj HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59058 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tofjpo HTTP/1.1" 200 OK
+connect CzStwExfYw20KdsPAAAZ
+INFO:     127.0.0.1:59057 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85txe1yf&sid=2EtsNbyCr4WkM4IYAAAA HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59053 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85txfd0h&sid=2EtsNbyCr4WkM4IYAAAA HTTP/1.1" 200 OK
+connect 142Xf0Z2nqlMRxCUAAAa
+INFO:     127.0.0.1:59056 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85txi525&sid=xXLzaTVtoJdsv6u8AAAB HTTP/1.1" 200 OK
+connect PmnvAk9W3-e3R3UkAAAb
+INFO:     127.0.0.1:59058 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85txmfpw&sid=vTVnuqrnfnvsIxBpAAAC HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59052 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85txkpk7&sid=xXLzaTVtoJdsv6u8AAAB HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59057 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85txnc1g&sid=vTVnuqrnfnvsIxBpAAAC HTTP/1.1" 200 OK
+connect zoIfcF6b2FssfrFzAAAc
+INFO:     127.0.0.1:59056 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85txq4ke&sid=7wGTbQzDHrnhd_IvAAAD HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59065 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=7wGTbQzDHrnhd_IvAAAD" [accepted]
+INFO:     127.0.0.1:59058 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85txsayo&sid=7wGTbQzDHrnhd_IvAAAD HTTP/1.1" 200 OK
+INFO:     connection open
+connect yXtDRl2gucelovT7AAAd
+INFO:     127.0.0.1:59053 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85txuohk&sid=heLU-r2Y-IrsMmZ0AAAE HTTP/1.1" 200 OK
+connect M2skwegRBK0QqUe9AAAe
+INFO:     127.0.0.1:59052 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85txyqr0&sid=Imf5KzznS5Xs81epAAAF HTTP/1.1" 200 OK
+connect LhR-3QSEjDrMf1WbAAAf
+INFO:     127.0.0.1:59053 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85ty4dcy&sid=FxMfdZa91llzrMjJAAAG HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85txwc7k&sid=heLU-r2Y-IrsMmZ0AAAE HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59057 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85ty0q4p&sid=Imf5KzznS5Xs81epAAAF HTTP/1.1" 200 OK
+connect ZeiYliKw9mD1kcO5AAAg
+INFO:     127.0.0.1:59052 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85ty8h9t&sid=-yZyJ9skB5XcZl_PAAAH HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59058 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85ty68db&sid=FxMfdZa91llzrMjJAAAG HTTP/1.1" 200 OK
+connect _S_9pMlCeaDKJ-McAAAh
+INFO:     127.0.0.1:59053 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tydk9w&sid=OUOukXt_EwqpJgMbAAAI HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tya885&sid=-yZyJ9skB5XcZl_PAAAH HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59052 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tyeu7g&sid=OUOukXt_EwqpJgMbAAAI HTTP/1.1" 200 OK
+connect ntaxQK5b9uOB7D_eAAAi
+INFO:     127.0.0.1:59057 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tyhd9e&sid=59PrXbblBPVU4T6RAAAJ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59066 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=heLU-r2Y-IrsMmZ0AAAE" [accepted]
+INFO:     connection open
+connect syT9W0dx6Dl7H05KAAAj
+INFO:     127.0.0.1:59058 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tylqbi&sid=7xPtqPObkVOgfyrsAAAK HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59053 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tyiabk&sid=59PrXbblBPVU4T6RAAAJ HTTP/1.1" 200 OK
+connect eR2cykhKgjNYeSkOAAAk
+INFO:     127.0.0.1:59057 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tyqfst&sid=CXS_NKDT0yUQtVgIAAAL HTTP/1.1" 200 OK
+connect se0GgR6lcO5IucsRAAAl
+INFO:     127.0.0.1:59052 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tyvlmz&sid=24WwfaiNzBGiju9pAAAM HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tymy10&sid=7xPtqPObkVOgfyrsAAAK HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59058 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tyrilw&sid=CXS_NKDT0yUQtVgIAAAL HTTP/1.1" 200 OK
+connect KTPKEfsZp03moTZYAAAm
+INFO:     127.0.0.1:59057 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tz04yc&sid=Vfs_aMVw2QvowhwtAAAN HTTP/1.1" 200 OK
+connect i1g5hIGqGzx6qZ1CAAAn
+INFO:     127.0.0.1:59052 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tz76j7&sid=rnEVLfWMRQheCM9IAAAO HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59053 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tyxa8r&sid=24WwfaiNzBGiju9pAAAM HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tz4m1x&sid=Vfs_aMVw2QvowhwtAAAN HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59067 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=Imf5KzznS5Xs81epAAAF" [accepted]
+connect snyHBZ9UAcHm4WSoAAAo
+INFO:     127.0.0.1:59058 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tzb350&sid=Bq2KEvWIZnLPD5z0AAAP HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59057 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tz9hf4&sid=rnEVLfWMRQheCM9IAAAO HTTP/1.1" 200 OK
+INFO:     connection open
+connect tnRI5jaIHow1tmakAAAp
+INFO:     127.0.0.1:59053 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tzgk2b&sid=8exbHE6aH7qCC4lnAAAQ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59052 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tzdzy4&sid=Bq2KEvWIZnLPD5z0AAAP HTTP/1.1" 200 OK
+connect BQ9Ywo2clBPDuqWNAAAq
+INFO:     127.0.0.1:59058 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tzlvk5&sid=AiBi9ESX-pUElF2zAAAR HTTP/1.1" 200 OK
+connect BsP5CFmBDlvqqE6FAAAr
+INFO:     127.0.0.1:59057 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tzptao&sid=tdnsukV7Ln7rg4hTAAAS HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tzjrss&sid=8exbHE6aH7qCC4lnAAAQ HTTP/1.1" 200 OK
+connect aKKB6S2iNbsoasrAAAAs
+INFO:     127.0.0.1:59058 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tzt2x3&sid=Jijbn3qX3dGkJXBdAAAT HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59053 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tznfg6&sid=AiBi9ESX-pUElF2zAAAR HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59057 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tzv1mt&sid=Jijbn3qX3dGkJXBdAAAT HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59052 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tzrepo&sid=tdnsukV7Ln7rg4hTAAAS HTTP/1.1" 200 OK
+connect mrjDjtkJs0mOU7gzAAAt
+INFO:     127.0.0.1:59058 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tzxmdi&sid=18UrDtScY6RCvc4TAAAU HTTP/1.1" 200 OK
+connect KNwk_JpdJrzFahmXAAAu
+INFO:     127.0.0.1:59056 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u02kfn&sid=EkLnoB0N5zeQFp6AAAAV HTTP/1.1" 200 OK
+connect TGWDB3a9bSmHSziVAAAv
+INFO:     127.0.0.1:59057 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u06k8e&sid=kggb1oodi-_yC2uyAAAW HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59068 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=FxMfdZa91llzrMjJAAAG" [accepted]
+INFO:     127.0.0.1:59053 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85tzz7wj&sid=18UrDtScY6RCvc4TAAAU HTTP/1.1" 200 OK
+INFO:     connection open
+connect q81Uk_z7BJxBrEPcAAAw
+INFO:     127.0.0.1:59056 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u0af0k&sid=cpvhbCMFpKV2T8alAAAX HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59052 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u03r3z&sid=EkLnoB0N5zeQFp6AAAAV HTTP/1.1" 200 OK
+connect 8wj6rG0SuKaGyJvqAAAx
+INFO:     127.0.0.1:59053 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u0ex65&sid=VVBUl1VeWxBFfsi7AAAY HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59058 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u07pdm&sid=kggb1oodi-_yC2uyAAAW HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59057 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u0c939&sid=cpvhbCMFpKV2T8alAAAX HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59052 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u0m4i4&sid=xXLzaTVtoJdsv6u8AAAB HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59053 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u0oyag&sid=vTVnuqrnfnvsIxBpAAAC HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u0ga2h&sid=VVBUl1VeWxBFfsi7AAAY HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59058 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u0rz9u&sid=7wGTbQzDHrnhd_IvAAAD HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59057 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u0zk2y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59070 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=-yZyJ9skB5XcZl_PAAAH" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:59057 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u1ak4p&sid=heLU-r2Y-IrsMmZ0AAAE HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59057 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u1enbv&sid=Imf5KzznS5Xs81epAAAF HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u1fhwz&sid=FxMfdZa91llzrMjJAAAG HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59058 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u1h3gv&sid=FxMfdZa91llzrMjJAAAG HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59053 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u1jtdu&sid=-yZyJ9skB5XcZl_PAAAH HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59071 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=OUOukXt_EwqpJgMbAAAI" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:59072 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=59PrXbblBPVU4T6RAAAJ" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:59073 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=7xPtqPObkVOgfyrsAAAK" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:59052 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u15nqw&sid=OUOukXt_EwqpJgMbAAAI HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59052 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u1vtt8&sid=59PrXbblBPVU4T6RAAAJ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59074 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=24WwfaiNzBGiju9pAAAM" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:59058 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u1pxq3&sid=24WwfaiNzBGiju9pAAAM HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59075 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=CXS_NKDT0yUQtVgIAAAL" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:59053 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u1mjyl&sid=CXS_NKDT0yUQtVgIAAAL HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59053 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u24nb3&sid=7xPtqPObkVOgfyrsAAAK HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59076 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=Vfs_aMVw2QvowhwtAAAN" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u1rbgo&sid=Vfs_aMVw2QvowhwtAAAN HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59077 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=rnEVLfWMRQheCM9IAAAO" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:59057 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u1ui9s&sid=rnEVLfWMRQheCM9IAAAO HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59078 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=8exbHE6aH7qCC4lnAAAQ" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:59058 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u22gjp&sid=8exbHE6aH7qCC4lnAAAQ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59079 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=Bq2KEvWIZnLPD5z0AAAP" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:59052 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u1zsmp&sid=Bq2KEvWIZnLPD5z0AAAP HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59080 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=AiBi9ESX-pUElF2zAAAR" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:59053 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u2627u&sid=AiBi9ESX-pUElF2zAAAR HTTP/1.1" 200 OK
+connect cTvA87kIttw6h1CLAAAz
+INFO:     127.0.0.1:59053 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u2shaa&sid=Ju8u1eMlQ7gMITAlAAAy HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59082 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=tdnsukV7Ln7rg4hTAAAS" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:59083 - "GET /socket.io/?EIO=4&transport=polling&t=85u0vwgy HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59057 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u2a3xv&sid=tdnsukV7Ln7rg4hTAAAS HTTP/1.1" 200 OK
+connect lRnfBwknfr0TRQiJAAA1
+INFO:     127.0.0.1:59083 - "POST /socket.io/?EIO=4&transport=polling&t=85u9ozif&sid=S7AfXqg-yP--8AqiAAA0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59083 - "GET /socket.io/?EIO=4&transport=polling&t=85u9q7s9&sid=S7AfXqg-yP--8AqiAAA0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59087 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=Ju8u1eMlQ7gMITAlAAAy" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:59089 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=Jijbn3qX3dGkJXBdAAAT" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u286t2&sid=Jijbn3qX3dGkJXBdAAAT HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u2t5yn&sid=Ju8u1eMlQ7gMITAlAAAy HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u2yzu8&sid=FxMfdZa91llzrMjJAAAG HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59091 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=18UrDtScY6RCvc4TAAAU" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u308hb&sid=-yZyJ9skB5XcZl_PAAAH HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85ufelsw HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u2ezv5&sid=18UrDtScY6RCvc4TAAAU HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59093 - "WebSocket /socket.io/?EIO=4&transport=websocket&sid=S7AfXqg-yP--8AqiAAA0" [accepted]
+INFO:     connection open
+connect uGr8juLRa8DTMv0uAAA3
+INFO:     127.0.0.1:59059 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85uindr6&sid=oi37ZTb-IITsPs46AAA2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85uiqeng&sid=oi37ZTb-IITsPs46AAA2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59095 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=oi37ZTb-IITsPs46AAA2" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85uj30dl&sid=oi37ZTb-IITsPs46AAA2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59083 - "GET /socket.io/?EIO=4&transport=polling&t=85u9zlkn&sid=S7AfXqg-yP--8AqiAAA0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85ujfusp&sid=oi37ZTb-IITsPs46AAA2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85url8p3 HTTP/1.1" 200 OK
+connect ZKimJRqzZpATE0psAAA5
+INFO:     127.0.0.1:59056 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85urtffp&sid=FUY2uVWfrnbaLu53AAA4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59099 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=FUY2uVWfrnbaLu53AAA4" [accepted]
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85urv3f3&sid=FUY2uVWfrnbaLu53AAA4 HTTP/1.1" 200 OK
+INFO:     connection open
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85us3e07&sid=FUY2uVWfrnbaLu53AAA4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59100 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=EkLnoB0N5zeQFp6AAAAV" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:59058 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85u2ha4v&sid=EkLnoB0N5zeQFp6AAAAV HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59058 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85v5qqe8 HTTP/1.1" 200 OK
+connect 1mUYXKUIZ2h5ZOrdAAA7
+INFO:     127.0.0.1:59058 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85v5w7zx&sid=VZ1JxkqlTNry5ge2AAA6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59101 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=VZ1JxkqlTNry5ge2AAA6" [accepted]
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85v5xbnq&sid=VZ1JxkqlTNry5ge2AAA6 HTTP/1.1" 200 OK
+INFO:     connection open
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85v6621z&sid=VZ1JxkqlTNry5ge2AAA6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85va11ch HTTP/1.1" 200 OK
+connect veI77qT6empQJzXbAAA9
+INFO:     127.0.0.1:59059 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85vaa3m4&sid=o6TDZxLKKgBaSGogAAA8 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59103 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=o6TDZxLKKgBaSGogAAA8" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:59058 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85vacf71&sid=o6TDZxLKKgBaSGogAAA8 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59058 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85valgee&sid=o6TDZxLKKgBaSGogAAA8 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59058 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85vfj206 HTTP/1.1" 200 OK
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+INFO:     connection closed
+disconnect CzStwExfYw20KdsPAAAZ
+disconnect 142Xf0Z2nqlMRxCUAAAa
+disconnect zoIfcF6b2FssfrFzAAAc
+disconnect PmnvAk9W3-e3R3UkAAAb
+disconnect LhR-3QSEjDrMf1WbAAAf
+disconnect M2skwegRBK0QqUe9AAAe
+disconnect yXtDRl2gucelovT7AAAd
+disconnect _S_9pMlCeaDKJ-McAAAh
+disconnect ntaxQK5b9uOB7D_eAAAi
+disconnect ZeiYliKw9mD1kcO5AAAg
+disconnect 1mUYXKUIZ2h5ZOrdAAA7
+disconnect ZKimJRqzZpATE0psAAA5
+disconnect veI77qT6empQJzXbAAA9
+disconnect syT9W0dx6Dl7H05KAAAj
+disconnect eR2cykhKgjNYeSkOAAAk
+disconnect se0GgR6lcO5IucsRAAAl
+disconnect KTPKEfsZp03moTZYAAAm
+disconnect i1g5hIGqGzx6qZ1CAAAn
+disconnect snyHBZ9UAcHm4WSoAAAo
+disconnect tnRI5jaIHow1tmakAAAp
+disconnect BQ9Ywo2clBPDuqWNAAAq
+disconnect BsP5CFmBDlvqqE6FAAAr
+disconnect aKKB6S2iNbsoasrAAAAs
+disconnect mrjDjtkJs0mOU7gzAAAt
+disconnect KNwk_JpdJrzFahmXAAAu
+disconnect cTvA87kIttw6h1CLAAAz
+disconnect lRnfBwknfr0TRQiJAAA1
+disconnect uGr8juLRa8DTMv0uAAA3
+INFO:     127.0.0.1:59083 - "GET /socket.io/?EIO=4&transport=polling&t=85vmzlik HTTP/1.1" 200 OK
+
+--- INCOMING HTTP REQUEST START ---
+Method: GET
+URL: http://localhost:8000/users/me
+Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"Windows"', 'authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG5hbkBnbWFpbC5jb20iLCJleHAiOjE3NTM5NTc4ODZ9.EAYQ8E0WG5d2ly6pS2X2FZ-TKe1GiZ7cQJe5hkc_NQc', 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', 'sec-ch-ua': '"Not)A;Brand";v="8", "Chromium";v="138", "Microsoft Edge";v="138"', 'sec-ch-ua-mobile': '?0', 'accept': '*/*', 'origin': 'http://127.0.0.1:5173', 'sec-fetch-site': 'cross-site', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://127.0.0.1:5173/', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'en-US,en;q=0.9,en-IN;q=0.8'})
+--- REQUEST BODY (if any) ---
+Body: 
+--- END REQUEST BODY ---
+connect KaEbEQ8WnnNnp8EPAABA
+INFO:     127.0.0.1:59088 - "POST /socket.io/?EIO=4&transport=polling&t=85vqijm5&sid=wcWmJ_iM40EvjjDZAAA_ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59092 - "GET /socket.io/?EIO=4&transport=polling&t=85vqlb4e&sid=wcWmJ_iM40EvjjDZAAA_ HTTP/1.1" 200 OK
+--- OUTGOING HTTP RESPONSE START ---
+Status: 200
+Headers: MutableHeaders({'content-length': '81', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-credentials': 'true'})
+--- OUTGOING HTTP RESPONSE END ---
+INFO:     127.0.0.1:59083 - "GET /users/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85vtsx31 HTTP/1.1" 200 OK
+connect EKcqbLUg3ZcFDdMnAABC
+INFO:     127.0.0.1:59059 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85vu5kqy&sid=MFMPbhBV4A_ErJ2QAABB HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59113 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=MFMPbhBV4A_ErJ2QAABB" [accepted]
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85vu6arl&sid=MFMPbhBV4A_ErJ2QAABB HTTP/1.1" 200 OK
+INFO:     connection open
+
+--- INCOMING HTTP REQUEST START ---
+Method: GET
+URL: http://127.0.0.1:8000/debate/10/messages
+Headers: Headers({'host': '127.0.0.1:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"Windows"', 'authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG5hbkBnbWFpbC5jb20iLCJleHAiOjE3NTM5NTc4ODZ9.EAYQ8E0WG5d2ly6pS2X2FZ-TKe1GiZ7cQJe5hkc_NQc', 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', 'sec-ch-ua': '"Not)A;Brand";v="8", "Chromium";v="138", "Microsoft Edge";v="138"', 'sec-ch-ua-mobile': '?0', 'accept': '*/*', 'origin': 'http://127.0.0.1:5173', 'sec-fetch-site': 'same-site', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://127.0.0.1:5173/', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'en-US,en;q=0.9,en-IN;q=0.8'})
+--- REQUEST BODY (if any) ---
+Body: 
+--- END REQUEST BODY ---
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85vugfz0&sid=MFMPbhBV4A_ErJ2QAABB HTTP/1.1" 200 OK
+--- OUTGOING HTTP RESPONSE START ---
+Status: 200
+Headers: MutableHeaders({'content-length': '1860', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-credentials': 'true'})
+--- OUTGOING HTTP RESPONSE END ---
+INFO:     127.0.0.1:59056 - "GET /debate/10/messages HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85vv3yzo HTTP/1.1" 200 OK
+connect zd8xBNmMPzvRZ43XAABE
+INFO:     127.0.0.1:59056 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85vvhy4f&sid=ruVbnbclwPgx2-6-AABD HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59114 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=ruVbnbclwPgx2-6-AABD" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85vvjr1b&sid=ruVbnbclwPgx2-6-AABD HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85vw57nv&sid=ruVbnbclwPgx2-6-AABD HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59115 - "WebSocket /socket.io/?EIO=4&transport=websocket&sid=wcWmJ_iM40EvjjDZAAA_" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:59092 - "GET /socket.io/?EIO=4&transport=polling&t=85vr1619&sid=wcWmJ_iM40EvjjDZAAA_ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85wm9wz0 HTTP/1.1" 200 OK
+connect j0HncLVlbkl2HFjDAABG
+INFO:     127.0.0.1:59056 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85wmnmia&sid=irtDHcB5NCCJ7gqHAABF HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85wmojbi&sid=irtDHcB5NCCJ7gqHAABF HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59116 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=irtDHcB5NCCJ7gqHAABF" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85wn0sdy&sid=irtDHcB5NCCJ7gqHAABF HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85xeawma HTTP/1.1" 200 OK
+connect SsFNOiI4JxJHpYBEAABI
+INFO:     127.0.0.1:59059 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85xehoce&sid=-eXpxDEXWj-GGxceAABH HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59118 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=-eXpxDEXWj-GGxceAABH" [accepted]
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85xejuq8&sid=-eXpxDEXWj-GGxceAABH HTTP/1.1" 200 OK
+INFO:     connection open
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85xer5fc&sid=-eXpxDEXWj-GGxceAABH HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85xjpvin HTTP/1.1" 200 OK
+connect S7HT1Hm56uOC4xfAAABK
+INFO:     127.0.0.1:59056 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85xjxqvs&sid=KPJctJqWFtr4rHbGAABJ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59119 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=KPJctJqWFtr4rHbGAABJ" [accepted]
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85xjym8y&sid=KPJctJqWFtr4rHbGAABJ HTTP/1.1" 200 OK
+INFO:     connection open
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85xk7gif&sid=KPJctJqWFtr4rHbGAABJ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85xxf0qz HTTP/1.1" 200 OK
+connect KxX7kA4abpphC-C2AABM
+INFO:     127.0.0.1:59056 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85xxojmz&sid=HZi9gfrzHRr4vvYyAABL HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59120 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=HZi9gfrzHRr4vvYyAABL" [accepted]
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85xxq9ko&sid=HZi9gfrzHRr4vvYyAABL HTTP/1.1" 200 OK
+INFO:     connection open
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85xy0hb4&sid=HZi9gfrzHRr4vvYyAABL HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85y39nqm HTTP/1.1" 200 OK
+connect lvRR3IY5LjDqDYp6AABO
+INFO:     127.0.0.1:59059 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85y3g5di&sid=ctPIqFsaJMytzoZ3AABN HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59121 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=ctPIqFsaJMytzoZ3AABN" [accepted]
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85y3h0cs&sid=ctPIqFsaJMytzoZ3AABN HTTP/1.1" 200 OK
+INFO:     connection open
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85y3tyl8&sid=ctPIqFsaJMytzoZ3AABN HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85y5wbj9 HTTP/1.1" 200 OK
+connect DKf9s_U8_VwxK3SqAABQ
+INFO:     127.0.0.1:59056 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85y63gcd&sid=JvnSchV0aqbsIicWAABP HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59122 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=JvnSchV0aqbsIicWAABP" [accepted]
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85y64ftc&sid=JvnSchV0aqbsIicWAABP HTTP/1.1" 200 OK
+INFO:     connection open
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85y6ddu8&sid=JvnSchV0aqbsIicWAABP HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85y6y7av HTTP/1.1" 200 OK
+connect _LFVXZvOz-iG6ZIJAABS
+INFO:     127.0.0.1:59056 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85y79tuo&sid=Lk9Dhq94O9WUYV2FAABR HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59123 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=Lk9Dhq94O9WUYV2FAABR" [accepted]
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85y7btyi&sid=Lk9Dhq94O9WUYV2FAABR HTTP/1.1" 200 OK
+INFO:     connection open
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85y7ipex&sid=Lk9Dhq94O9WUYV2FAABR HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85ybxbpr HTTP/1.1" 200 OK
+connect UyFqrawzylGGtbaMAABU
+INFO:     127.0.0.1:59059 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85yc4pe0&sid=E2Wf-85vdcnx09InAABT HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85yc6e42&sid=E2Wf-85vdcnx09InAABT HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59125 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=E2Wf-85vdcnx09InAABT" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85yceu3k&sid=E2Wf-85vdcnx09InAABT HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85yxok5g HTTP/1.1" 200 OK
+connect DxW4Xt9ul0Mxddi7AABW
+INFO:     127.0.0.1:59056 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85yxy3dx&sid=MNyfjd-LvITZYen1AABV HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59126 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=MNyfjd-LvITZYen1AABV" [accepted]
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85yy0jjy&sid=MNyfjd-LvITZYen1AABV HTTP/1.1" 200 OK
+INFO:     connection open
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85yy8vkh&sid=MNyfjd-LvITZYen1AABV HTTP/1.1" 200 OK
+
+--- INCOMING HTTP REQUEST START ---
+Method: POST
+URL: http://127.0.0.1:8000/ai-debate/10/All forms of animal agriculture should be banned
+Headers: Headers({'host': '127.0.0.1:8000', 'connection': 'keep-alive', 'content-length': '55', 'sec-ch-ua-platform': '"Windows"', 'authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG5hbkBnbWFpbC5jb20iLCJleHAiOjE3NTM5NTc4ODZ9.EAYQ8E0WG5d2ly6pS2X2FZ-TKe1GiZ7cQJe5hkc_NQc', 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', 'sec-ch-ua': '"Not)A;Brand";v="8", "Chromium";v="138", "Microsoft Edge";v="138"', 'content-type': 'application/json', 'sec-ch-ua-mobile': '?0', 'accept': '*/*', 'origin': 'http://127.0.0.1:5173', 'sec-fetch-site': 'same-site', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://127.0.0.1:5173/', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'en-US,en;q=0.9,en-IN;q=0.8'})
+--- REQUEST BODY (if any) ---
+Body: {"content":"hello","sender_type":"user","sender_id":22}
+--- END REQUEST BODY ---
+INFO:     127.0.0.1:59056 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85zdhr4q HTTP/1.1" 200 OK
+DEBUG:app.routers.ai_debate_routes:DEBUG: [1] Entering create_ai_message_route for debate 10
+DEBUG:app.routers.ai_debate_routes:DEBUG: [3] User message saved successfully with ID: 33
+DEBUG:app.routers.ai_debate_routes:DEBUG: [4] User message emitted via Socket.IO after manual datetime conversion.
+DEBUG:app.routers.ai_debate_routes:DEBUG: [5] Calling get_ai_response. Prompt starts: 'The debate topic is 'All forms of animal agriculture should be banned'...'
+DEBUG:app.ai:AI: Attempting to get response for prompt (first 80 chars): The debate topic is 'All forms of animal agriculture should be banned'. User 'ad
+ERROR:app.routers.ai_debate_routes:CRITICAL ERROR in create_ai_message_route for debate 10. Execution halted at previous DEBUG step.
+Traceback (most recent call last):
+  File "C:\Users\Rohit\OneDrive\Desktop\MGFV\backend\app\routers\ai_debate_routes.py", line 55, in create_ai_message_route
+    ai_content = await get_ai_response(ai_prompt)
+  File "C:\Users\Rohit\OneDrive\Desktop\MGFV\backend\app\ai.py", line 19, in get_ai_response
+    pdb.set_trace()
+NameError: name 'pdb' is not defined
+connect B1O7TaFxLk5BRG3gAABY
+INFO:     127.0.0.1:59056 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85zds1vv&sid=i0Je7IAK_yKtnntNAABX HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59128 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=i0Je7IAK_yKtnntNAABX" [accepted]
+INFO:     connection open
+--- OUTGOING HTTP RESPONSE START ---
+Status: 500
+Headers: MutableHeaders({'content-length': '75', 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-credentials': 'true'})
+--- OUTGOING HTTP RESPONSE END ---
+INFO:     127.0.0.1:59059 - "POST /ai-debate/10/All%20forms%20of%20animal%20agriculture%20should%20be%20banned HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:59129 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85zdv8av&sid=i0Je7IAK_yKtnntNAABX HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59129 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85zfm5lr HTTP/1.1" 200 OK
+connect z8q8PZ2G9hO0_2G8AABa
+INFO:     127.0.0.1:59129 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85zg3zjk&sid=IlY6FMNKlKcmqxxgAABZ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59130 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=IlY6FMNKlKcmqxxgAABZ" [accepted]
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85zg4drr&sid=IlY6FMNKlKcmqxxgAABZ HTTP/1.1" 200 OK
+INFO:     connection open
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85zgh94l&sid=IlY6FMNKlKcmqxxgAABZ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85zpjlz7 HTTP/1.1" 200 OK
+connect Uli-6DepepYhvGQsAABc
+INFO:     127.0.0.1:59059 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85zprtai&sid=h6C0SrP9w3wblssVAABb HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59131 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=h6C0SrP9w3wblssVAABb" [accepted]
+INFO:     127.0.0.1:59129 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85zptbca&sid=h6C0SrP9w3wblssVAABb HTTP/1.1" 200 OK
+INFO:     connection open
+INFO:     127.0.0.1:59129 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=85zq7n1i&sid=h6C0SrP9w3wblssVAABb HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59129 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=860h68y9 HTTP/1.1" 200 OK
+connect kRWHHsx7H8SxBV0OAABe
+INFO:     127.0.0.1:59129 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=860hdz3h&sid=iFNGsCOGZ9Tj4xQ6AABd HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59133 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=iFNGsCOGZ9Tj4xQ6AABd" [accepted]
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=860hehx4&sid=iFNGsCOGZ9Tj4xQ6AABd HTTP/1.1" 200 OK
+INFO:     connection open
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=860hn602&sid=iFNGsCOGZ9Tj4xQ6AABd HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=86191qw2 HTTP/1.1" 200 OK
+connect Nod07p3l046BMy-1AABg
+INFO:     127.0.0.1:59059 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=861985qu&sid=nEfHEP5nWg70s5G_AABf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59135 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=nEfHEP5nWg70s5G_AABf" [accepted]
+INFO:     127.0.0.1:59129 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=8619azx0&sid=nEfHEP5nWg70s5G_AABf HTTP/1.1" 200 OK
+INFO:     connection open
+INFO:     127.0.0.1:59129 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=8619ig29&sid=nEfHEP5nWg70s5G_AABf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59129 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=86283zc0 HTTP/1.1" 200 OK
+connect 5Q_K0LLaiNa8Nw_EAABi
+INFO:     127.0.0.1:59129 - "POST /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=8628928h&sid=aW1e86XKRzqY5EHAAABh HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59139 - "WebSocket /socket.io/?debateId=10&userId=22&EIO=4&transport=websocket&sid=aW1e86XKRzqY5EHAAABh" [accepted]
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=8628bgab&sid=aW1e86XKRzqY5EHAAABh HTTP/1.1" 200 OK
+INFO:     connection open
+INFO:     127.0.0.1:59059 - "GET /socket.io/?debateId=10&userId=22&EIO=4&transport=polling&t=8628i54a&sid=aW1e86XKRzqY5EHAAABh HTTP/1.1" 200 OK

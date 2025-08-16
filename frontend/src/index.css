@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* You can add your custom global CSS here */
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Cyberpunk MindGrid Color System */
+    --background: 0 0% 3%;
+    --foreground: 0 0% 95%;
+
+    --card: 0 0% 5%;
+    --card-foreground: 0 0% 90%;
+
+    --popover: 0 0% 4%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 0 85% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 100% 45%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 8%;
+    --muted-foreground: 0 0% 60%;
+
+    --accent: 45 100% 60%;
+    --accent-foreground: 0 0% 0%;
+
+    --destructive: 0 85% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 15%;
+    --input: 0 0% 10%;
+    --ring: 0 85% 45%;
+
+    --radius: 0.75rem;
+
+    /* Custom MindGrid tokens */
+    --cyber-red: 0 85% 45%;
+    --cyber-blue: 220 100% 45%;
+    --cyber-gold: 45 100% 60%;
+    --cyber-purple: 270 85% 60%;
+    --cyber-green: 120 85% 45%;
+    --cyber-orange: 25 100% 55%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--cyber-red)), hsl(0 85% 35%));
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--cyber-blue)), hsl(220 100% 35%));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--cyber-gold)), hsl(45 100% 50%));
+    --gradient-bg: linear-gradient(180deg, hsl(0 0% 3%), hsl(0 0% 1%));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 5%), hsl(0 0% 8%));
+
+    /* Shadows & Glows */
+    --shadow-glow-red: 0 0 20px hsl(var(--cyber-red) / 0.3);
+    --shadow-glow-blue: 0 0 20px hsl(var(--cyber-blue) / 0.3);
+    --shadow-glow-gold: 0 0 20px hsl(var(--cyber-gold) / 0.3);
+    --shadow-cyber: 0 4px 20px hsl(0 0% 0% / 0.5);
+
+    /* Animations */
+    --transition-cyber: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}

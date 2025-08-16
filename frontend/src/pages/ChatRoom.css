@@ -1,0 +1,24 @@
+/* src/pages/ChatRoom.css */
+
+/* Basic styling for the chat messages box */
+/* This height and overflow are handled by Tailwind classes in the component */
+/* You can add custom scrollbar styles here if needed */
+
+/* Optional: Custom scrollbar styles for Webkit browsers */
+.chat-messages-box::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-messages-box::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05); /* Light transparent track */
+  border-radius: 10px;
+}
+
+.chat-messages-box::-webkit-scrollbar-thumb {
+  background: rgba(100, 255, 218, 0.3); /* Cyber-green transparent thumb */
+  border-radius: 10px;
+}
+
+.chat-messages-box::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 255, 218, 0.5); /* Darker on hover */
+}
