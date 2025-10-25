@@ -1,14 +1,11 @@
-# schemas.py
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List
 from datetime import datetime
-import json # Not strictly necessary for Pydantic, but good practice for clarity on datetime_to_iso_str
-
+import json 
 
 # Helper function to convert datetime objects to ISO format strings
 def datetime_to_iso_str(dt: datetime) -> str:
     return dt.isoformat()
-
 
 # ------------------ USER SCHEMAS ------------------ #
 class UserCreate(BaseModel):
@@ -27,6 +24,12 @@ class UserOut(BaseModel):
     class Config:
         from_attributes = True
 
+# ------------------ TOPIC SCHEMA (NEW for AI Debate Start) ------------------ #
+class TopicSchema(BaseModel):
+    """Schema used when starting a debate (AI or Human) to pass the topic."""
+    topic: str
+
+# ------------------ FORUM SCHEMAS ------------------ #
 class Forum(BaseModel):
     id: int
     name: str
@@ -69,6 +72,9 @@ class UserStats(BaseModel):
     debates_lost: int
     debates_competed: int
 
+    class Config:
+        from_attributes = True
+
 class Badge(BaseModel):
     id: int
     name: str
@@ -103,6 +109,7 @@ class DebateOut(BaseModel):
     id: int
     player1_id: int
     player2_id: int
+    player2_id: int
     topic: str
     winner: Optional[str] = None
     timestamp: datetime
@@ -123,30 +130,20 @@ class MessageOut(BaseModel):
     content: str
     sender_id: Optional[int] = None
     debate_id: int
-    timestamp: datetime # This is the field causing the TypeError
+    timestamp: datetime
     sender_type: str
 
     class Config:
         from_attributes = True
-        # --- THIS IS THE CRUCIAL PART ---
         json_encoders = {
-            datetime: datetime_to_iso_str # Use the helper function here
+            datetime: datetime_to_iso_str 
         }
-        # --- END CRUCIAL PART ---
-class UserStats(BaseModel):
-    debates_won: int
-    debates_lost: int
-    debates_competed: int
-
-    class Config:
-        from_attributes = True
-
 
 class DebateHistory(BaseModel):
     id: int
     topic: str
     opponent_username: str
-    winner: Optional[str] # <--- CHANGED: Make winner optional
+    winner: Optional[str] 
     date: str
 
     class Config:
