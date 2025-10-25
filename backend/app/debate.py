@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app import models, schemas, database, auth # Gunicorn-safe absolute imports
-# from app.socketio_instance import sio # REMOVED: sio is not used in this file.
+from app.socketio_instance import sio # Used for potential future emit or in other modules
 
 router = APIRouter(
     prefix="/debate",
@@ -31,10 +31,10 @@ def start_human_match_route(
 ):
     """
     Creates a preliminary debate object to signify a match is being sought.
-    The real player2_id will be updated when a match is found.
+    FIX: player2_id is set to None (null) to avoid Foreign Key Violation (Key 0 not found).
     """
     player1_id = current_user.id 
-    placeholder_player2_id = 0 # Placeholder ID for the user being sought
+    placeholder_player2_id = None # CRITICAL FIX: Use None instead of 0 for nullable Foreign Key
     
     db_debate = models.Debate(
         player1_id=player1_id,

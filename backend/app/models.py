@@ -1,4 +1,3 @@
-# models.py
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, func
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -19,7 +18,7 @@ class User(Base):
     # Updated relationships to reflect two players in Debate
     debates_as_player1 = relationship("Debate", foreign_keys="[Debate.player1_id]", back_populates="player1_obj")
     debates_as_player2 = relationship("Debate", foreign_keys="[Debate.player2_id]", back_populates="player2_obj")
-    messages = relationship("Message", back_populates="sender_obj") # Corrected back_populates
+    messages = relationship("Message", back_populates="sender_obj")
 
 
 class Debate(Base):
@@ -28,9 +27,11 @@ class Debate(Base):
     id = Column(Integer, primary_key=True, index=True)
     # Replaced user_id with player1_id and player2_id
     player1_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    player2_id = Column(Integer, ForeignKey("users.id"), nullable=False) # Can be AI's "user" ID if you model AI as a user
+    # CRITICAL FIX: Changed nullable=False to nullable=True
+    # This allows a debate to be created while searching for an opponent (player2_id = None)
+    player2_id = Column(Integer, ForeignKey("users.id"), nullable=True) 
     topic = Column(String, nullable=False)
-    winner = Column(String, nullable=True) # Consider making this a ForeignKey to User.id or separate result field
+    winner = Column(String, nullable=True) 
     timestamp = Column(DateTime, default=datetime.utcnow)
 
     player1_obj = relationship("User", foreign_keys=[player1_id], back_populates="debates_as_player1")
@@ -43,13 +44,13 @@ class Message(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     debate_id = Column(Integer, ForeignKey("debates.id"), nullable=False)
-    sender_id = Column(Integer, ForeignKey("users.id"), nullable=True) # AI messages might not have a sender_id
+    sender_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     content = Column(Text, nullable=False)
     timestamp = Column(DateTime, default=datetime.utcnow)
-    sender_type = Column(String, default='user') # 'user' or 'ai'
+    sender_type = Column(String, default='user')
 
     debate = relationship("Debate", back_populates="messages")
-    sender_obj = relationship("User", back_populates="messages") # Renamed from 'sender' to avoid conflict with sender_type
+    sender_obj = relationship("User", back_populates="messages")
 
 class Badge(Base):
     __tablename__ = "badges"
