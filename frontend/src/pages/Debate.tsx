@@ -36,7 +36,7 @@ const Debate = () => {
     const { user, token } = useAuth(); // Get current logged-in user details
     const [messages, setMessages] = useState<Message[]>([]);
     const [currentMessage, setCurrentMessage] = useState('');
-    const [timeLeft, setTimeLeft] = useState(900); // 15 minutes = 900 seconds
+    const [timeLeft, setTimeLeft] = useState(300); // 15 minutes = 900 seconds
     const [isDebateActive, setIsDebateActive] = useState(true);
     const [isTyping, setIsTyping] = useState(false); // For AI opponent typing indicator
     const messagesEndRef = useRef<HTMLDivElement>(null); // Ref for scrolling to bottom
