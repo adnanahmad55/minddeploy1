@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
-from app import models, schemas, database # FIX: Changed from relative to absolute imports
+from app import models, schemas, database # FIX: Changed from relative to absolute imports (Gunicorn-safe)
 from sqlalchemy.orm import Session
 import os
 SECRET_KEY = os.getenv("JWT_SECRET", "testsecret")
