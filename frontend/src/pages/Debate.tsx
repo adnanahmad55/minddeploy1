@@ -1,4 +1,4 @@
-// Debate.tsx - FINAL COMPLETE CODE (Corrected UI Player Alignment)
+// Debate.tsx - FINAL COMPLETE CODE (Corrected AI Typing Indicator & Alignment)
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -36,7 +36,7 @@ const Debate = () => {
     const { user, token } = useAuth(); // Get current logged-in user details
     const [messages, setMessages] = useState<Message[]>([]);
     const [currentMessage, setCurrentMessage] = useState('');
-    const [timeLeft, setTimeLeft] = useState(300); // 15 minutes = 900 seconds
+    const [timeLeft, setTimeLeft] = useState(900); // 15 minutes = 900 seconds
     const [isDebateActive, setIsDebateActive] = useState(true);
     const [isTyping, setIsTyping] = useState(false); // For AI opponent typing indicator
     const messagesEndRef = useRef<HTMLDivElement>(null); // Ref for scrolling to bottom
@@ -106,8 +106,16 @@ const Debate = () => {
                     ...incomingMessage,
                     id: String(incomingMessage.id), // Ensure ID is a string
                     sender_id: incomingMessage.sender_id !== null ? Number(incomingMessage.sender_id) : null,
+                    sender_type: incomingMessage.sender_type, // Keep sender_type
                     timestamp: new Date(incomingMessage.timestamp) // Convert ISO string to Date object
                 };
+
+                // --- FIX: Stop typing indicator if message is from AI ---
+                if (formattedMessage.sender_type === 'ai') {
+                    console.log(">>> DEBUG: AI message received, setting isTyping to false.");
+                    setIsTyping(false);
+                }
+                // --- END FIX ---
 
                 // Use functional update for setMessages to ensure latest state is used
                 setMessages((prevMessages) => {
@@ -123,11 +131,14 @@ const Debate = () => {
                 });
             });
 
-            // Listener for AI typing indicator
+            // Listener for AI typing indicator (still useful for showing it)
             socketRef.current.on('ai_typing', (data) => {
                 if (data.debateId === debateId) {
                      console.log("AI Typing status:", data.is_typing);
-                     setIsTyping(data.is_typing); // Update typing state
+                     // Only set typing to true here, false is handled by new_message
+                     if (data.is_typing) {
+                          setIsTyping(true);
+                     }
                 }
             });
 
@@ -313,7 +324,7 @@ const Debate = () => {
                 setCurrentMessage(messageInputBeforeSending); // Restore input on failure
                 setIsTyping(false); // Stop typing indicator on error
             }
-            // Note: setIsTyping(false) should ideally be handled when AI message arrives or via a specific event
+            // Note: setIsTyping(false) is now handled by the 'new_message' listener
         } else {
             // Send message to human opponent via Socket.IO
             console.log("Sending message to human opponent via socket...");
@@ -387,7 +398,7 @@ const Debate = () => {
                 </div>
             </header>
 
-            {/* --- CRITICAL UI FIX: Player Info Section - SWAPPED --- */}
+            {/* --- Player Info Bar (Corrected Alignment) --- */}
             <div className="border-b border-border/50 bg-muted/10">
                  <div className="container mx-auto px-4 py-3">
                      <div className="flex items-center justify-between">
@@ -416,7 +427,7 @@ const Debate = () => {
                      </div>
                  </div>
             </div>
-             {/* --- END CRITICAL UI FIX --- */}
+             {/* --- END Player Info Bar --- */}
 
 
             {/* Message Area */}
