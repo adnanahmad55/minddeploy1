@@ -1,4 +1,4 @@
-// Debate.tsx - FINAL COMPLETE CODE (Corrected AI Typing Indicator & Alignment)
+// Debate.tsx - FINAL COMPLETE CODE (All UI & Real-Time Fixes)
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -120,6 +120,7 @@ const Debate = () => {
                 // Use functional update for setMessages to ensure latest state is used
                 setMessages((prevMessages) => {
                     // Check if message with this ID already exists to prevent duplicates
+                    // This handles both optimistic updates (if any) and server duplicates
                     if (prevMessages.some(msg => msg.id === formattedMessage.id)) {
                         console.log(`>>> DEBUG setMessages: Duplicate ID ${formattedMessage.id} found, skipping.`);
                         return prevMessages; // Return the unchanged state
@@ -283,9 +284,9 @@ const Debate = () => {
              sender_id: currentUserId
         };
 
-        // --- REMOVED OPTIMISTIC UI UPDATE ---
+        // --- FIX: REMOVED OPTIMISTIC UI UPDATE ---
         // Rely solely on 'new_message' event from server
-        // --- END REMOVAL ---
+        // --- END FIX ---
 
         const messageInputBeforeSending = currentMessage; // Store message in case of failure
         setCurrentMessage(''); // Clear input immediately
@@ -315,7 +316,7 @@ const Debate = () => {
                     return; // Stop processing
                 }
                 console.log("AI API call successful, waiting for socket message for AI response.");
-                // AI's response will arrive via the 'new_message' socket event
+                // AI's response (AND the user's message) will arrive via the 'new_message' socket event
 
             } catch (error) {
                 // Handle network or other fetch errors
@@ -324,12 +325,11 @@ const Debate = () => {
                 setCurrentMessage(messageInputBeforeSending); // Restore input on failure
                 setIsTyping(false); // Stop typing indicator on error
             }
-            // Note: setIsTyping(false) is now handled by the 'new_message' listener
         } else {
             // Send message to human opponent via Socket.IO
             console.log("Sending message to human opponent via socket...");
             socketRef.current?.emit('send_message_to_human', messagePayload);
-            // Server will broadcast the message back via 'new_message' event to all in the room
+            // Server will broadcast the message back (including to sender) via 'new_message'
         }
     };
 
@@ -379,10 +379,16 @@ const Debate = () => {
                         <Button variant="ghost" size="sm" onClick={forfeit} disabled={!isDebateActive}>
                             <ArrowLeft className="mr-2 h-4 w-4" /> Back
                         </Button>
-                        <div className="flex items-center space-x-3">
-                            <Brain className="h-6 w-6 text-cyber-red" />
-                            <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">Neural Battle</h1>
+                        {/* --- ADDED NAME CREDIT FIX --- */}
+                        <div className="flex flex-col items-center space-y-1"> {/* Changed to flex-col */}
+                            <div className="flex items-center space-x-3">
+                                <Brain className="h-6 w-6 text-cyber-red" />
+                                <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">Neural Battle</h1>
+                            </div>
+                            {/* Added your name credit */}
+                            <p className="text-xs text-muted-foreground opacity-75" style={{marginTop: '2px'}}>Made by Adnan Ahmad</p>
                         </div>
+                        {/* --- END NAME CREDIT FIX --- */}
                         <div className="flex items-center space-x-2">
                             <Clock className="h-4 w-4 text-cyber-gold" />
                             <span className={`font-mono text-lg ${timeLeft < 60 && isDebateActive ? 'text-cyber-red animate-pulse' : 'text-cyber-gold'}`}>
@@ -398,7 +404,7 @@ const Debate = () => {
                 </div>
             </header>
 
-            {/* --- Player Info Bar (Corrected Alignment) --- */}
+            {/* --- CRITICAL UI FIX: Player Info Section - SWAPPED --- */}
             <div className="border-b border-border/50 bg-muted/10">
                  <div className="container mx-auto px-4 py-3">
                      <div className="flex items-center justify-between">
@@ -421,13 +427,14 @@ const Debate = () => {
                              <div>
                                  <p className="font-semibold text-foreground text-right">{user?.username ?? 'You'}</p>
                                  <p className="text-sm text-muted-foreground text-right">{user?.elo ?? '?'} ELO</p>
+Horizontal ELO alignment (text-right)
                              </div>
                              <div className="p-2 bg-cyber-blue/20 rounded-lg"> <Shield className="h-5 w-5 text-cyber-blue" /> </div>
                          </div>
                      </div>
                  </div>
             </div>
-             {/* --- END Player Info Bar --- */}
+             {/* --- END CRITICAL UI FIX --- */}
 
 
             {/* Message Area */}
@@ -445,14 +452,15 @@ const Debate = () => {
 
                         {/* Map through messages */}
                         {messages.map((message) => {
-                             // Correctly determine if the message is from the current logged-in user
+                             // --- CRITICAL UI FIX: Compare sender_id with current user's ID ---
                              const currentUserIdNum = user ? parseInt(String(user.id), 10) : NaN;
-                             // Check if sender_id is not null before comparing
+                             // Check if sender_id is not null AND matches the current user
                              const isCurrentUser = message.sender_id !== null && message.sender_id === currentUserIdNum;
+                             // --- END CRITICAL UI FIX ---
 
                              return (
                                 <div
-                                    key={message.id} // Use unique message ID from backend/optimistic
+                                    key={message.id} // Use unique message ID
                                     className={`flex w-full ${isCurrentUser ? 'justify-end' : 'justify-start'}`} // Alignment Fix
                                 >
                                     {/* Message Bubble */}
@@ -482,8 +490,8 @@ const Debate = () => {
                                     <div className="flex space-x-1 items-center">
                                          {/* Animated typing dots */}
                                          <div className="w-2 h-2 bg-cyber-gold rounded-full animate-pulse"></div>
-                                         <div className="w-2 h-2 bg-cyber-gold rounded-full animate-pulse animation-delay-200"></div>
-                                         <div className="w-2 h-2 bg-cyber-gold rounded-full animate-pulse animation-delay-400"></div>
+                                         <div className="w-2 h-2 bg-cyber-gold rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                                         <div className="w-2 h-2 bg-cyber-gold rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
                                     </div>
                                 </Card>
                             </div>
@@ -520,7 +528,7 @@ const Debate = () => {
                         {isDebateActive && (
                              <div className="flex justify-between items-center mt-3">
                                 <p className="text-xs text-muted-foreground">
-                                    Enter to send • Shift+Enter for new line
+                                    Press Enter to send • Shift+Enter for new line
                                 </p>
                                 <Button variant="outline" size="sm" onClick={endDebate}>
                                     End Debate
