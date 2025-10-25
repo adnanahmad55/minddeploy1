@@ -1,5 +1,6 @@
 # app/main.py - FINAL WORKING CODE FOR DEPLOYMENT
-
+from . import db_init
+db_init.fix_player2_id_nullable()
 from fastapi import FastAPI, Request, Response, WebSocket, WebSocketDisconnect, Query 
 from fastapi.middleware.cors import CORSMiddleware # <<< FIX: 'CORSMiddleware' is now correct
 from .routers import auth_routes, leaderboard_routes, dashboard_routes, token_routes, gamification_routes, forum_routes, ai_debate_routes, analysis_routes
