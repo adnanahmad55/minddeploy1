@@ -1,4 +1,3 @@
-# app/matchmaking.py
 # Corrected import for sibling module
 from .socketio_instance import sio 
 
@@ -9,11 +8,53 @@ from . import database, models, schemas
 from . evaluation import evaluate_debate
 from typing import Dict, Any
 from datetime import datetime
+from jose import JWTError, jwt # <<< ADDED for token validation
+
+# Assuming SECRET_KEY and ALGORITHM are defined in auth.py or available via env vars
+# Since we don't have auth.py content accessible here, we'll import required logic if possible
+# FALLBACK: Define the required constant if not importable
+import os
+SECRET_KEY = os.getenv("JWT_SECRET", "testsecret") # Ensure this matches auth.py
+ALGORITHM = "HS256" # Ensure this matches auth.py
+
 
 online_users: Dict[str, Any] = {}
 
+# --- ADDED: Socket.IO Connect Handler for Token Validation (Fixes 403) ---
+@sio.event
+async def connect(sid, environ, auth):
+    token = auth.get('token')
+    if not token:
+        # User must send a token
+        print(f"Connection refused for SID {sid}: No token provided.")
+        raise ConnectionRefusedError('Authentication token missing')
+
+    try:
+        # Validate the token using the same logic as FastAPI auth
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            print(f"Connection refused for SID {sid}: Invalid payload.")
+            raise ConnectionRefusedError('Invalid authentication payload')
+        
+        # Optionally, fetch user details and store them in the session
+        # For simplicity, we trust the token payload for now.
+        
+        print(f"SID {sid} connected and authenticated successfully.")
+        # We can store the authenticated email in the session for later use
+        await sio.save_session(sid, {'email': email})
+        
+    except JWTError:
+        print(f"Connection refused for SID {sid}: JWT validation failed.")
+        raise ConnectionRefusedError('Token validation failed')
+
+# --- END ADDED CONNECT HANDLER ---
+
+
 @sio.event
 async def user_online(sid, data):
+    # This handler is called only AFTER the 'connect' handler succeeds
+    # ... (rest of the logic remains the same)
     user_id = str(data.get('userId'))
     if user_id not in online_users:
         online_users[user_id] = {'username': data.get('username'), 'elo': data.get('elo'), 'id': user_id, 'sid': sid}
@@ -93,13 +134,12 @@ async def send_message_to_human(sid, data):
             db.commit()
             db.refresh(new_message_db)
 
-            # --- CONCRETE FIX: Manual conversion for a foolproof emit ---
+            # --- FIX: Removed Duplicate Emit ---
             message_to_broadcast = schemas.MessageOut.from_orm(new_message_db).dict()
-            # This line forces the datetime object to an ISO string
             if 'timestamp' in message_to_broadcast and isinstance(message_to_broadcast['timestamp'], datetime):
                 message_to_broadcast['timestamp'] = message_to_broadcast['timestamp'].isoformat()
+            
             print(f"DEBUG: Emitting 'new_message' to room {debate_id} with content: {message_to_broadcast.get('content')[:50]}...")
-            await sio.emit('new_message', message_to_broadcast, room=str(debate_id))
             await sio.emit('new_message', message_to_broadcast, room=str(debate_id))
             # --- END FIX ---
 
@@ -147,9 +187,12 @@ async def end_debate(sid, data):
                 losing_player.elo -= elo_change
                 db_debate.winner = winning_player.username
             elif result == 'AI':
-                winning_player_id = 0
-                losing_player = player1 if player1.id != 0 else player2
+                # FIX: simplified AI winning logic
+                winning_player_id = 0 # This line is unnecessary but harmless
+                losing_player = player1 if player1.id != 0 else player2 # Assuming AI_USER_ID is 0 or 1
                 elo_change = evaluation_result.get('elo_change', 10)
+                # Apply ELO change to the human player who lost
+                losing_player = player1 if db_debate.player1_id != winner_id else player2 
                 losing_player.elo -= elo_change
                 db_debate.winner = "AI Bot"
             elif result == 'Draw':
