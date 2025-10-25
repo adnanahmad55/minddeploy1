@@ -65,15 +65,14 @@ class Streak(BaseModel):
     class Config:
         from_attributes = True
 
-# --- FORUM SCHEMAS ---
-class Forum(BaseModel): # <<< FIX: Forum class is added back
+class Forum(BaseModel):
     id: int
     name: str
     description: str
 
     class Config:
         from_attributes = True
-        
+
 class Thread(BaseModel):
     id: int
     title: str
@@ -99,6 +98,9 @@ class Post(BaseModel):
 class PostCreate(BaseModel):
     content: str
     thread_id: int
+
+class Analysis(BaseModel): # <<< FIX: Analysis class is added back
+    analysis: str
 
 # ------------------ DEBATE SCHEMAS ------------------ #
 class TopicSchema(BaseModel):
