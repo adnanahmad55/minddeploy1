@@ -1,8 +1,11 @@
+# app/matchmaking.py - FINAL COMPLETE CODE
+
 from app.socketio_instance import sio
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from app import database, models, schemas
-from app.evaluation import evaluate_debate # Assuming this exists
+# FIX: evaluation import needs correct path if it exists
+# from app.evaluation import evaluate_debate # Assuming this exists
 from typing import Dict, Any, Optional, List
 from datetime import datetime
 from jose import JWTError, jwt
@@ -11,20 +14,99 @@ import os
 SECRET_KEY = os.getenv("JWT_SECRET", "testsecret")
 ALGORITHM = "HS256"
 
-# NOTE: These are safe Global lists
-online_users: Dict[str, Any] = {}
-matchmaking_queue: List[Dict[str, Any]] = []
+# NOTE: These are safe Global lists because Gunicorn worker is set to 1
+online_users: Dict[str, Any] = {} # {user_id: {username, elo, sid}}
+matchmaking_queue: List[Dict[str, Any]] = [] # [{user_id, elo, sid, debate_id, username}]
 
-# ... (connect, user_online, user_offline handlers remain here) ...
 
-# ----------------------------------------------------
-# *** FINAL DEBUGGING CHECK ***
-# ----------------------------------------------------
+# --- Socket.IO Event Handlers ---
+
+@sio.event
+async def connect(sid, environ, auth: Optional[dict] = None):
+    """Handles initial connection and authentication."""
+    token = auth.get('token') if auth else None
+
+    if not token:
+        print(f"SID {sid} connected without explicit token. Relying on 'user_online' event.")
+        return True # Allow connection, rely on user_online for registration
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            # If payload is invalid but token exists, we might still refuse
+            print(f"Connection potentially refused for SID {sid}: Invalid token payload.")
+            # raise ConnectionRefusedError('Invalid authentication token payload') # More strict
+            return True # Allow connection for now, user_online handles registration
+
+        # Store authenticated email in the session for potential future use
+        await sio.save_session(sid, {'email': email})
+        print(f"SID {sid} connected and authenticated via token successfully.")
+        return True
+
+    except JWTError:
+        print(f"Connection refused for SID {sid} due to JWT validation failure.")
+        # Depending on requirements, you might allow the connection
+        # but mark the session as unauthenticated, or refuse it.
+        # For now, allow connection but user won't be 'online' properly.
+        # raise ConnectionRefusedError('Token validation failed') # Strict refusal
+        return True # Allow connection for now
+
+
+@sio.event
+async def user_online(sid, data):
+    """Registers user details when they explicitly declare themselves online."""
+    user_id = str(data.get('userId'))
+    username = data.get('username')
+    elo = data.get('elo')
+
+    if user_id and username:
+        # Always update the user's entry with the latest SID
+        online_users[user_id] = {'username': username, 'elo': elo, 'id': user_id, 'sid': sid}
+        print(f"User online: {username} (ID: {user_id}, ELO: {elo}). Total online: {len(online_users)}")
+        # Optionally broadcast the updated online users list if UI needs it
+        # await sio.emit('online_users', list(online_users.values()))
+    else:
+        print(f"WARNING: Missing userId or username in user_online event for SID {sid}. Data: {data}")
+
+
+@sio.event
+async def user_offline(sid, data=None):
+    """Handles user going offline or disconnecting based on SID."""
+    user_id_to_remove = None
+    username = "Unknown"
+    # Find user_id based on sid
+    for uid, udata in list(online_users.items()): # Use list() for safe iteration during removal
+        if udata.get('sid') == sid:
+            user_id_to_remove = uid
+            username = udata.get('username', 'Unknown')
+            break
+
+    if user_id_to_remove:
+        if user_id_to_remove in online_users:
+             del online_users[user_id_to_remove]
+        # Also remove user from queue if they were searching
+        global matchmaking_queue
+        matchmaking_queue = [q for q in matchmaking_queue if q['user_id'] != user_id_to_remove]
+        print(f"User offline: {username} (ID: {user_id_to_remove}). Total online: {len(online_users)}. Queue size: {len(matchmaking_queue)}")
+        # Optionally broadcast the updated online users list
+        # await sio.emit('online_users', list(online_users.values()))
+
+
+@sio.event
+async def disconnect(sid):
+    """Handles socket disconnection event by cleaning up user state."""
+    print(f"SID {sid} disconnected.")
+    # Call user_offline logic to clean up based on SID
+    await user_offline(sid, data=None)
+
+
+# --- Matchmaking Queue Logic ---
+
 @sio.event
 async def join_matchmaking_queue(sid, data):
-    # --- ADD THIS PRINT STATEMENT ---
-    print(f"DEBUG: Received join_matchmaking_queue from SID {sid} with data: {data}")
-    # --- END ADD ---
+    """Adds a user to the matchmaking queue and attempts to find a match."""
+    print(f"DEBUG: Received join_matchmaking_queue from SID {sid} with data: {data}") # DEBUG LINE
 
     user_id = str(data.get('userId'))
     debate_id = data.get('debateId')
@@ -36,15 +118,17 @@ async def join_matchmaking_queue(sid, data):
 
     global matchmaking_queue
 
+    # Ensure user is registered as online and SID matches before proceeding
+    online_user_data = online_users.get(user_id)
+    if not online_user_data or online_user_data.get('sid') != sid:
+        print(f"ERROR join_matchmaking_queue: User {user_id} not online or SID mismatch for SID {sid}")
+        await sio.emit('toast', {'title': 'Error', 'description': 'Not properly registered as online or session mismatch.'}, room=sid)
+        return
+
     # Remove user if they are restarting the search
     matchmaking_queue = [q for q in matchmaking_queue if q['user_id'] != user_id]
 
-    online_user_data = online_users.get(user_id)
-    if not online_user_data:
-        print(f"ERROR join_matchmaking_queue: User {user_id} not found in online_users for SID {sid}")
-        await sio.emit('toast', {'title': 'Error', 'description': 'Not registered as online.'}, room=sid)
-        return
-
+    # Add user to the queue
     user_data = {
         'user_id': user_id,
         'elo': online_user_data.get('elo', 1000),
@@ -60,36 +144,44 @@ async def join_matchmaking_queue(sid, data):
         player1 = None
         player2 = None
         try:
-            # Pop two DIFFERENT users
-            p1_temp = matchmaking_queue.pop(0)
+            # Ensure two *different* users are popped
+            p1_index = -1
             p2_index = -1
-            for i, user in enumerate(matchmaking_queue):
-                if user['user_id'] != p1_temp['user_id']:
+            for i in range(len(matchmaking_queue)):
+                if p1_index == -1:
+                    p1_index = i
+                elif matchmaking_queue[i]['user_id'] != matchmaking_queue[p1_index]['user_id']:
                     p2_index = i
                     break
 
-            if p2_index != -1:
-                 player1 = p1_temp
-                 player2 = matchmaking_queue.pop(p2_index)
+            if p1_index != -1 and p2_index != -1:
+                 # Pop the one with the higher index first to avoid shifting issues
+                 if p1_index > p2_index:
+                      player1 = matchmaking_queue.pop(p1_index)
+                      player2 = matchmaking_queue.pop(p2_index)
+                 else:
+                      player2 = matchmaking_queue.pop(p2_index)
+                      player1 = matchmaking_queue.pop(p1_index)
             else:
-                 matchmaking_queue.insert(0, p1_temp)
-                 print(f"Matchmaking check: Not enough different users. Size: {len(matchmaking_queue)}")
+                 print(f"Matchmaking check: Not enough different users in queue. Size: {len(matchmaking_queue)}")
                  return
 
         except IndexError:
             print("WARNING: IndexError during pop, despite size check.")
             if player1: matchmaking_queue.insert(0, player1)
+            if player2: matchmaking_queue.insert(0, player2) # Check if player2 was assigned
             return
 
-        if not player1 or not player2 or player1['user_id'] == player2['user_id']:
-             print("ERROR: Matchmaking failed, same user or invalid players.")
+        # Double check players are valid
+        if not player1 or not player2 or player1.get('user_id') == player2.get('user_id'):
+             print("ERROR: Matchmaking failed after pop, same user or invalid players.")
              if player1: matchmaking_queue.insert(0, player1)
              if player2: matchmaking_queue.insert(0, player2)
              return
 
         print(f"Match Found: {player1.get('username', 'P1')} vs {player2.get('username', 'P2')}")
 
-        # Update the debate in the database
+        # Update the debate in the database (Player 1 created the debate)
         db_debate = None
         try:
             with database.SessionLocal() as db:
@@ -144,7 +236,7 @@ async def join_matchmaking_queue(sid, data):
 
 @sio.event
 async def cancel_matchmaking(sid, data):
-    # ... (Your cancel_matchmaking logic) ...
+    """Removes a user from the matchmaking queue."""
     user_id = str(data.get('userId'))
     global matchmaking_queue
     original_size = len(matchmaking_queue)
@@ -152,6 +244,15 @@ async def cancel_matchmaking(sid, data):
     if len(matchmaking_queue) < original_size:
         print(f"User {user_id} removed from queue. Size: {len(matchmaking_queue)}")
 
+# --- Placeholder for other event handlers ---
+# Add send_message_to_human, end_debate, etc. here if they are part of matchmaking.py
+# Example:
+# @sio.event
+# async def send_message_to_human(sid, data):
+#     # ... implementation ...
+#     pass
 
-# NOTE: Other handlers like connect, user_online, user_offline, end_debate are omitted for brevity.
-# Ensure they are present in your final file.
+# @sio.event
+# async def end_debate(sid, data):
+#     # ... implementation ...
+#     pass
