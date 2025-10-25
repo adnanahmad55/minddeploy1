@@ -1,75 +1,86 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from .. import schemas, database, models, auth, ai, debate, matchmaking
-from fastapi.security import OAuth2PasswordRequestForm
+from app import models, schemas, database, auth # FIX: Added 'app' for absolute imports
+from app.socketio_instance import sio # FIX: Changed from relative to absolute import
 
-router = APIRouter(tags=["Auth"])
+router = APIRouter(
+    prefix="/debate",
+    tags=["Debates"]
+)
 
-
-@router.post("/register", response_model=schemas.UserOut)
-def register(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
-    existing = db.query(models.User).filter(models.User.email == user.email).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    
-    hashed = auth.get_password_hash(user.password)
-    
-    new_user = models.User(
-        username=user.username,
-        email=user.email,
-        hashed_password=hashed
+# ----------------- CREATE DEBATE -----------------
+@router.post("/", response_model=schemas.DebateOut)
+def create_debate_route(debate_data: schemas.DebateCreate, db: Session = Depends(database.get_db)):
+    # Create the debate with both player IDs
+    db_debate = models.Debate(
+        player1_id=debate_data.player1_id,
+        player2_id=debate_data.player2_id,
+        topic=debate_data.topic
     )
-    
-    db.add(new_user)
+    db.add(db_debate)
     db.commit()
-    db.refresh(new_user)
+    db.refresh(db_debate)
+    return db_debate
+
+# --- NEW FIX: Endpoint for starting Human Matchmaking (POST /debate/start-human) ---
+@router.post("/start-human", response_model=schemas.DebateOut)
+def start_human_match_route(
+    topic_data: schemas.TopicSchema, # Use the TopicSchema defined in schemas.py
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_user) # Authenticated user
+):
+    """
+    Creates a preliminary debate object to signify a match is being sought.
+    The real player2_id will be updated when a match is found.
+    """
+    # Use the authenticated user ID and a placeholder ID (0) for the opponent
+    player1_id = current_user.id 
+    placeholder_player2_id = 0 # Placeholder ID for the user being sought
     
-    return new_user
-
-
-@router.post("/login", response_model=schemas.Token)
-def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
-    user = auth.authenticate_user(db, form.username, form.password)
-    if not user:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-    
-    access_token = auth.create_access_token(data={"sub": user.email})
-    return {"access_token": access_token, "token_type": "bearer"}
-
-
-@router.get("/users/me", response_model=schemas.UserOut)
-def read_users_me(current_user: models.User = Depends(auth.get_current_user)):
-    return current_user
-
-@router.post("/test-user")
-def create_test_user(db: Session = Depends(database.get_db)):
-    user = db.query(models.User).filter(models.User.email == "test@test.com").first()
-    if user:
-        return {"message": "Test user already exists."}
-
-    hashed_password = auth.get_password_hash("test")
-    new_user = models.User(
-        username="test",
-        email="test@test.com",
-        hashed_password=hashed_password
+    db_debate = models.Debate(
+        player1_id=player1_id,
+        player2_id=placeholder_player2_id,
+        topic=topic_data.topic,
+        # is_active=True, etc. (add status columns if needed)
     )
-    db.add(new_user)
+    db.add(db_debate)
     db.commit()
-    db.refresh(new_user)
-    return new_user
+    db.refresh(db_debate)
+    
+    # The frontend will now use this debate ID when joining the matchmaking queue.
+    return db_debate
+# --- END NEW FIX ---
 
-@router.get("/{user_id}", response_model=schemas.UserOut)
-def get_user_by_id(user_id: int, db: Session = Depends(database.get_db)):
-    """Fetches a single user by their ID."""
-    print(f"DEBUG: Received request to fetch user with ID: {user_id}")
-    
-    user = db.query(models.User).filter(models.User.id == user_id).first()
-    
-    if not user:
-        print(f"DEBUG: User with ID {user_id} not found in DB session. Returning 404.")
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    
-    print(f"DEBUG: User with ID {user_id} found. Username: {user.username}. Returning user.")
-    return user
-# --- END MODIFIED ---
 
+# ----------------- GET DEBATE BY ID -----------------
+@router.get("/{debate_id}", response_model=schemas.DebateOut)
+def get_debate_route(debate_id: int, db: Session = Depends(database.get_db)):
+    db_debate = db.query(models.Debate).filter(models.Debate.id == debate_id).first()
+    if not db_debate:
+        raise HTTPException(status_code=404, detail="Debate not found")
+    return db_debate
+
+# ----------------- CREATE MESSAGE IN DEBATE -----------------
+@router.post("/{debate_id}/messages", response_model=schemas.MessageOut)
+def create_message_route(debate_id: int, message: schemas.MessageCreate, db: Session = Depends(database.get_db)):
+    # Ensure debate exists
+    # It's good practice to fetch the debate to ensure it's active/valid
+    debate_obj = db.query(models.Debate).filter(models.Debate.id == debate_id).first()
+    if not debate_obj:
+        raise HTTPException(status_code=404, detail="Debate not found")
+    
+    db_message = models.Message(**message.dict(), debate_id=debate_id)
+    db.add(db_message)
+    db.commit()
+    db.refresh(db_message)
+    return db_message
+
+# ----------------- GET ALL MESSAGES IN A DEBATE -----------------
+@router.get("/{debate_id}/messages", response_model=list[schemas.MessageOut])
+def get_messages_route(debate_id: int, db: Session = Depends(database.get_db)):
+    return (
+        db.query(models.Message)
+        .filter(models.Message.debate_id == debate_id)
+        .order_by(models.Message.timestamp)
+        .all()
+    )
