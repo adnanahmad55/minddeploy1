@@ -48,10 +48,19 @@ class DebateHistory(BaseModel):
     class Config:
         from_attributes = True
         
-class Badge(BaseModel): # <<< FIX: Badge class is added back
+class Badge(BaseModel):
     id: int
     name: str
     description: str
+
+    class Config:
+        from_attributes = True
+
+class Streak(BaseModel): # <<< FIX: Streak class is added back
+    id: int
+    user_id: int
+    current_streak: int
+    max_streak: int
 
     class Config:
         from_attributes = True
