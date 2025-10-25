@@ -43,11 +43,11 @@ async def join_matchmaking_queue(sid, data):
     matchmaking_queue.append(user_data)
     print(f"User {user_data['username']} added to queue. Size: {len(matchmaking_queue)}")
     
-    # CRITICAL FIX 2: Check for match only if size is 2 or more (This is the intended fix)
+    # 2. Check for an immediate match
+    # CRITICAL FIX: Ensure the queue has AT LEAST 2 members before popping.
     if len(matchmaking_queue) >= 2:
         
-        # Simple FIFO matching (first in, first out)
-        # NOTE: Both pops are safe because len >= 2
+        # NOTE: Both pops are now safe because len >= 2
         player1 = matchmaking_queue.pop(0) 
         player2 = matchmaking_queue.pop(0) 
         
