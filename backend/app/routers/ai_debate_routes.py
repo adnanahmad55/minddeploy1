@@ -17,7 +17,32 @@ router = APIRouter(
 )
 
 AI_USER_ID = 1
+@router.post("/start", response_model=schemas.DebateOut)
+async def start_ai_debate_route(
+    topic: schemas.TopicSchema, # Assuming a schema for topic
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    """
+    Creates a new Debate entry between the current user and the AI (AI_USER_ID).
+    This handles the call from the frontend button 'Debate the AI'.
+    """
+    AI_USER_ID = 1 # Make sure this is correctly defined and exists
 
+    # 1. Create the debate with user and AI
+    db_debate = models.Debate(
+        player1_id=current_user.id,
+        player2_id=AI_USER_ID,
+        topic=topic.topic,
+        is_ai_debate=True # Good idea to track this
+    )
+    db.add(db_debate)
+    db.commit()
+    db.refresh(db_debate)
+    
+    # 2. You might emit a starting message here later, but for now, return the debate.
+    
+    return db_debate
 @router.post("/{debate_id}/{topic}", response_model=schemas.MessageOut)
 async def create_ai_message_route(
     debate_id: int,

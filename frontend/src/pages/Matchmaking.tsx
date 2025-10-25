@@ -4,12 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
-import { Brain, Swords, Users, Zap, Clock, ArrowLeft, Bot } from 'lucide-react'; // Added Bot icon
+import { Brain, Swords, Users, Zap, Clock, ArrowLeft, Bot } from 'lucide-react';
 import io, { Socket } from 'socket.io-client';
 
 // ----------------------------------------------------
 // *** FIX: Define API_BASE using Environment Variable ***
 // ----------------------------------------------------
+// NOTE: VITE_API_URL should be the base URL, e.g., 'https://minddeploy1-production.up.railway.app'
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface Opponent {
@@ -32,7 +33,8 @@ const Matchmaking = () => {
     useEffect(() => {
         if (!socketRef.current && user) {
             // FIX: Using API_BASE for live connection
-            socketRef.current = io(API_BASE, {
+            // The io() function automatically handles the /socket.io/ path.
+            socketRef.current = io(API_BASE, { 
                 query: { userId: user.id },
                 auth: { token: token }
             });
@@ -49,6 +51,7 @@ const Matchmaking = () => {
 
             socketRef.current.on('connect_error', (error) => {
                 console.error("Socket Connection Error:", error);
+                // The main error is being printed here, which often starts with "iE: xhr poll error"
                 toast({
                     title: "Connection Error",
                     description: "Failed to connect to matchmaking server.",
@@ -56,10 +59,22 @@ const Matchmaking = () => {
                 });
                 stopSearching();
             });
+            
+            // Emit user_online event immediately after connection for Matchmaking.py logic
+            socketRef.current.on('connect', () => {
+                if (user) {
+                    socketRef.current?.emit('user_online', { 
+                        userId: user.id, 
+                        username: user.username, 
+                        elo: user.elo 
+                    });
+                }
+            });
         }
 
         return () => {
             if (socketRef.current) {
+                socketRef.current.emit('user_offline', { userId: user?.id }); // Emit user offline
                 socketRef.current.emit('cancel_matchmaking', { userId: user?.id });
                 socketRef.current.disconnect();
                 socketRef.current = null;
@@ -80,6 +95,7 @@ const Matchmaking = () => {
         return () => {
             if (timerRef.current) {
                 clearInterval(timerRef.current);
+                timerRef.current = null;
             }
         };
     }, [isSearching]);
@@ -109,16 +125,22 @@ const Matchmaking = () => {
         setSearchTime(0);
         
         try {
-            // --- FIX 2: Use API_BASE for HTTP Call ---
-            const endpoint = isAI ? `${API_BASE}/matchmaking/start-ai` : `${API_BASE}/matchmaking/start-human`;
+            // --- FIX 2: Correct the AI Debate URL to match FastAPI's routing ---
+            // AI Debate router prefix: /ai-debate. Endpoint should be /start (as discussed)
+            const endpoint = isAI ? `${API_BASE}/ai-debate/start` : `${API_BASE}/matchmaking/start-human`;
 
+            // NOTE: We are assuming you've added the /ai-debate/start endpoint in your Python code.
+            
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,
                 },
-                body: JSON.stringify({ userId: user.id }),
+                // Removed redundant userId from body, but assuming TopicSchema is sent
+                body: JSON.stringify({ 
+                    topic: "Should AI be regulated heavily?" // Placeholder topic, adjust if dynamic
+                }),
             });
 
             if (!response.ok) {
@@ -127,12 +149,19 @@ const Matchmaking = () => {
             }
 
             const data = await response.json();
-            setTopic(data.topic);
+            // Data received here is likely the created debate object { debate_id, topic, ... }
+            setTopic(data.topic); 
 
             if (isAI) {
                 // For AI matches, navigate immediately after creation
                 stopSearching();
-                navigate('/debate', { state: { debateId: data.debate_id, opponent: { id: '0', username: 'AI Bot', elo: 1200, is_ai: true }, topic: data.topic } });
+                navigate('/debate', { 
+                    state: { 
+                        debateId: data.id, // Assuming the backend returns 'id'
+                        opponent: { id: '1', username: 'AI Bot', elo: 1200, is_ai: true }, // Assuming AI_USER_ID is 1
+                        topic: data.topic 
+                    } 
+                });
             } else {
                 // For human matches, wait for socket event
                 socketRef.current?.emit('join_matchmaking_queue', { userId: user.id, elo: user.elo });
