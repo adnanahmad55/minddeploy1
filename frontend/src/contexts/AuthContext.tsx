@@ -1,8 +1,7 @@
-// AuthContext.tsx - F I X E D  V E R S I O N
+// AuthContext.tsx - FINAL CORRECTED VERSION
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-// --- START: Missing Interface Definitions (Previous Errors) ---
 interface User {
     id: string;
     username: string;
@@ -19,7 +18,6 @@ interface AuthContextType {
     logout: () => void;
     isLoading: boolean;
 }
-// --- END: Missing Interface Definitions ---
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -31,20 +29,10 @@ export const useAuth = () => {
     return context;
 };
 
-
-// --------------------------------------------------------------------------------
-// *** CRITICAL FIX: API_BASE Moved INSIDE AuthProvider Function ***
-// This resolves the VS Code error and ensures import.meta.env works correctly.
-// --------------------------------------------------------------------------------
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    // API_BASE को सीधे Railway Environment से पढ़ें (VITE_API_URL का उपयोग करके)
+    // API_BASE को सीधे Railway Environment से पढ़ें
     const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
     
-    // ----------------------------------------------------
-    // *** Fix for previous deletion: ***
-    // [API_BASE यहाँ से हटा दिया गया है क्योंकि यह अब ग्लोबल है] - यह कमेंट हटा दिया गया है 
-    // ----------------------------------------------------
-
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
     const [isLoading, setIsLoading] = useState(true);
@@ -63,7 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         const userData = await response.json();
                         setUser(userData);
                     } else {
-                        logout(); // Token invalid
+                        logout(); // Token invalid or expired
                     }
                 } catch (error) {
                     console.error('Auth init failed', error);
@@ -81,8 +69,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         formData.append('username', username);
         formData.append('password', password);
 
-        // API_BASE का उपयोग
-        const response = await fetch(`${API_BASE}/login`, { 
+        // FIX: Changed /login to /token as per FastAPI auth_routes.py
+        const response = await fetch(`${API_BASE}/token`, { 
             method: 'POST',
             body: formData,
         });
@@ -112,7 +100,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const register = async (username: string, email: string, password: string) => {
-        // API_BASE का उपयोग
+        // Registration endpoint is /register
         const response = await fetch(`${API_BASE}/register`, { 
             method: 'POST',
             headers: {
