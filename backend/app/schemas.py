@@ -29,11 +29,21 @@ class UserOut(BaseModel):
     class Config:
         from_attributes = True
 
-# --- FIX: UserStats class added back ---
+# --- STATS SCHEMAS ---
 class UserStats(BaseModel):
     debates_won: int
     debates_lost: int
     debates_competed: int
+
+    class Config:
+        from_attributes = True
+        
+class DebateHistory(BaseModel): # <<< FIX: This class is added back
+    id: int
+    topic: str
+    opponent_username: str
+    winner: Optional[str] 
+    date: str
 
     class Config:
         from_attributes = True
@@ -86,4 +96,4 @@ class MessageOut(BaseModel):
             datetime: datetime_to_iso_str
         }
 
-# NOTE: अन्य स्कीमा जैसे Forum, Thread, Post, DebateHistory, LeaderboardEntry आपकी फाइल में मौजूद होने चाहिए।
+# NOTE: अन्य स्कीमा जैसे Forum, Thread, Post, LeaderboardEntry आपकी फाइल में मौजूद होने चाहिए।
