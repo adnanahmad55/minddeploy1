@@ -1,4 +1,4 @@
-// Debate.tsx - FINAL COMPLETE CODE (Corrected Alignment & Real-time - No Optimistic)
+// Debate.tsx - FINAL COMPLETE CODE (Corrected UI Player Alignment)
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -15,12 +15,12 @@ import io, { Socket } from 'socket.io-client';
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface Message {
-    id: string; // Keep as string as converted from backend
+    id: string;
     content: string;
-    sender_id: number | null; // Keep as number | null
+    sender_id: number | null;
     sender_type: 'user' | 'ai';
     debate_id: number;
-    timestamp: Date; // Keep as Date object after conversion
+    timestamp: Date;
 }
 
 interface Opponent {
@@ -33,15 +33,15 @@ interface Opponent {
 const Debate = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { user, token } = useAuth(); // Get token for initial message fetch
+    const { user, token } = useAuth(); // Get current logged-in user details
     const [messages, setMessages] = useState<Message[]>([]);
     const [currentMessage, setCurrentMessage] = useState('');
     const [timeLeft, setTimeLeft] = useState(900); // 15 minutes = 900 seconds
     const [isDebateActive, setIsDebateActive] = useState(true);
-    const [isTyping, setIsTyping] = useState(false); // For AI opponent
+    const [isTyping, setIsTyping] = useState(false); // For AI opponent typing indicator
     const messagesEndRef = useRef<HTMLDivElement>(null); // Ref for scrolling to bottom
 
-    // Safely get state from location, providing defaults and parsing debateId
+    // Safely get state from location, providing defaults
     const opponent: Opponent = location.state?.opponent || { id: '0', username: 'Opponent', elo: 1000, is_ai: false };
     const topic: string = location.state?.topic || 'Default Topic';
     // Ensure debateId is consistently treated as a number
@@ -144,7 +144,7 @@ const Debate = () => {
             socketRef.current.on('connect_error', (error) => {
                 console.error("Socket Connection Error:", error);
                 toast({ title: "Connection Error", description: `Failed to connect: ${error.message}`, variant: "destructive" });
-                 // Maybe implement retry logic or navigate back
+                 // Consider more robust error handling, e.g., retry attempts or navigating back
             });
 
             // Handle generic errors emitted by the server
@@ -180,6 +180,7 @@ const Debate = () => {
 
     // --- Fetch Initial Messages ---
      const fetchInitialMessages = async () => {
+         // Added check for NaN debateId
          if (isNaN(debateId) || !token) {
               console.error("Cannot fetch messages: Invalid debateId or no token.");
               return;
@@ -191,7 +192,7 @@ const Debate = () => {
              });
              if (!response.ok) { throw new Error(`HTTP error! status: ${response.status}`); }
              const data = await response.json();
-             // Format messages fetched from API
+             // Format messages
              const formattedMessages = data.map((m: any) => ({
                  ...m,
                  id: String(m.id),
@@ -272,7 +273,7 @@ const Debate = () => {
         };
 
         // --- REMOVED OPTIMISTIC UI UPDATE ---
-        // Rely solely on 'new_message' event from server to prevent duplicates
+        // Rely solely on 'new_message' event from server
         // --- END REMOVAL ---
 
         const messageInputBeforeSending = currentMessage; // Store message in case of failure
@@ -336,7 +337,7 @@ const Debate = () => {
         toast({ title: "Debate ended by user", description: "Calculating results...", });
         // Notify the backend that the debate has ended
         socketRef.current?.emit('end_debate', { debate_id: debateId });
-        // Navigation to results page should ideally happen after receiving confirmation ('debate_ended' event from backend)
+        // Consider navigating based on 'debate_ended' event instead for consistency
         // navigate('/Result', { state: { ... } });
     };
 
@@ -345,8 +346,7 @@ const Debate = () => {
          // Ensure debateId and user are valid
          if(isNaN(debateId) || !user) return;
          toast({ title: "Debate forfeited", description: "Leaving the arena.", variant: "destructive" });
-         // Optional: Notify backend about forfeiture
-         // socketRef.current?.emit('forfeit_debate', { debate_id: debateId, user_id: parseInt(user.id, 10) });
+         // socketRef.current?.emit('forfeit_debate', { debate_id: debateId, user_id: parseInt(user.id, 10) }); // Optional
          navigate('/dashboard'); // Navigate immediately
      };
 
@@ -359,7 +359,7 @@ const Debate = () => {
 
     // --- Render ---
     return (
-        <div className="min-h-screen bg-gradient-bg flex flex-col text-white"> {/* Ensure base text color */}
+        <div className="min-h-screen bg-gradient-bg flex flex-col text-white"> {/* Base text color */}
             {/* Header */}
             <header className="border-b border-border/50 bg-card/20 backdrop-blur-sm sticky top-0 z-10">
                 <div className="container mx-auto px-4 py-3">
@@ -387,33 +387,37 @@ const Debate = () => {
                 </div>
             </header>
 
-            {/* Player Info Bar */}
+            {/* --- CRITICAL UI FIX: Player Info Section - SWAPPED --- */}
             <div className="border-b border-border/50 bg-muted/10">
                  <div className="container mx-auto px-4 py-3">
                      <div className="flex items-center justify-between">
-                         {/* Current User Info (Left) */}
+                         {/* OPPONENT NOW ON THE LEFT */}
                          <div className="flex items-center space-x-3">
-                             <div className="p-2 bg-cyber-blue/20 rounded-lg"> <Shield className="h-5 w-5 text-cyber-blue" /> </div>
-                             <div>
-                                 <p className="font-semibold text-foreground">{user?.username ?? 'You'}</p>
-                                 <p className="text-sm text-muted-foreground">{user?.elo ?? '?'} ELO</p>
-                             </div>
-                         </div>
-                         {/* VS Separator */}
-                         <div className="text-center"> <div className="text-2xl">⚔️</div> <p className="text-xs text-muted-foreground">VS</p> </div>
-                         {/* Opponent Info (Right) */}
-                         <div className="flex items-center space-x-3">
-                             <div>
-                                 <p className="font-semibold text-foreground text-right">{opponent?.username ?? 'Opponent'}</p>
-                                 <p className="text-sm text-muted-foreground text-right">{opponent?.elo ?? '?'} ELO</p>
-                             </div>
                              <div className={`p-2 rounded-lg ${opponent?.is_ai ? 'bg-cyber-gold/20' : 'bg-cyber-red/20'}`}>
                                  {opponent?.is_ai ? <Bot className="h-5 w-5 text-cyber-gold" /> : <Sword className="h-5 w-5 text-cyber-red" />}
                              </div>
+                             <div>
+                                 <p className="font-semibold text-foreground">{opponent?.username ?? 'Opponent'}</p>
+                                 <p className="text-sm text-muted-foreground">{opponent?.elo ?? '?'} ELO</p>
+                             </div>
+                         </div>
+
+                         {/* VS Separator */}
+                         <div className="text-center"> <div className="text-2xl">⚔️</div> <p className="text-xs text-muted-foreground">VS</p> </div>
+
+                         {/* CURRENT USER NOW ON THE RIGHT */}
+                         <div className="flex items-center space-x-3">
+                             <div>
+                                 <p className="font-semibold text-foreground text-right">{user?.username ?? 'You'}</p>
+                                 <p className="text-sm text-muted-foreground text-right">{user?.elo ?? '?'} ELO</p>
+                             </div>
+                             <div className="p-2 bg-cyber-blue/20 rounded-lg"> <Shield className="h-5 w-5 text-cyber-blue" /> </div>
                          </div>
                      </div>
                  </div>
             </div>
+             {/* --- END CRITICAL UI FIX --- */}
+
 
             {/* Message Area */}
             <div className="flex-1 overflow-hidden"> {/* Allows inner div to scroll */}
@@ -430,14 +434,15 @@ const Debate = () => {
 
                         {/* Map through messages */}
                         {messages.map((message) => {
-                             // Determine if the message is from the current logged-in user
+                             // Correctly determine if the message is from the current logged-in user
                              const currentUserIdNum = user ? parseInt(String(user.id), 10) : NaN;
+                             // Check if sender_id is not null before comparing
                              const isCurrentUser = message.sender_id !== null && message.sender_id === currentUserIdNum;
 
                              return (
                                 <div
                                     key={message.id} // Use unique message ID from backend/optimistic
-                                    className={`flex w-full ${isCurrentUser ? 'justify-end' : 'justify-start'}`} // Align message bubble
+                                    className={`flex w-full ${isCurrentUser ? 'justify-end' : 'justify-start'}`} // Alignment Fix
                                 >
                                     {/* Message Bubble */}
                                     <div className={`max-w-[70%] lg:max-w-[60%] p-3 rounded-lg shadow-md break-words ${ // Ensure long words break
