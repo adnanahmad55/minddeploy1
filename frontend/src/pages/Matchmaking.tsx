@@ -1,3 +1,5 @@
+// Matchmaking.tsx - FINAL DEBUGGING VERSION (Syntax Checked)
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,7 +9,6 @@ import { toast } from '@/hooks/use-toast';
 import { Brain, Swords, Users, Zap, Clock, ArrowLeft, Bot } from 'lucide-react';
 import io, { Socket } from 'socket.io-client';
 
-// NOTE: VITE_API_URL should be the base URL
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface Opponent {
@@ -26,14 +27,12 @@ const Matchmaking = () => {
     const socketRef = useRef<Socket | null>(null);
     const timerRef = useRef<number | null>(null);
 
-    // --- CRITICAL FIX: Socket.IO Connection Setup ---
+    // --- Socket.IO Connection Setup (Remains Correct) ---
     useEffect(() => {
         if (!socketRef.current && user) {
-            
-            socketRef.current = io(API_BASE, { 
+            socketRef.current = io(API_BASE, {
                 query: { userId: user.id },
                 auth: { token: token },
-                // FIX: Forces connection via HTTP Long Polling to bypass Railway WSS proxy issues
                 transports: ['polling'],
             });
 
@@ -48,28 +47,19 @@ const Matchmaking = () => {
             });
 
             socketRef.current.on('connect_error', (error) => {
-                console.error("Socket Connection Error:", error);
-                toast({
-                    title: "Connection Error",
-                    description: "Failed to connect to matchmaking server.",
-                    variant: "destructive",
-                });
-                stopSearching();
+                 console.error("Socket Connection Error:", error);
+                 toast({ title: "Connection Error", description: "Failed to connect to matchmaking server.", variant: "destructive" });
+                 stopSearching();
             });
-            
+
             socketRef.current.on('connect', () => {
                 console.log("Socket.IO connected successfully using Polling.");
                 if (user) {
-                    // Emit user_online to register in matchmaking.py
-                    socketRef.current?.emit('user_online', { 
-                        userId: user.id, 
-                        username: user.username, 
-                        elo: user.elo 
-                    });
+                    socketRef.current?.emit('user_online', { userId: user.id, username: user.username, elo: user.elo });
                 }
             });
         }
-
+        // Cleanup function
         return () => {
             if (socketRef.current) {
                 socketRef.current.emit('user_offline', { userId: user?.id });
@@ -78,7 +68,7 @@ const Matchmaking = () => {
                 socketRef.current = null;
             }
         };
-    }, [user, token, navigate]);
+    }, [user, token, navigate]); // Dependencies are correct
 
     // Timer logic (Unchanged)
     useEffect(() => {
@@ -93,7 +83,6 @@ const Matchmaking = () => {
         return () => {
             if (timerRef.current) {
                 clearInterval(timerRef.current);
-                timerRef.current = null;
             }
         };
     }, [isSearching]);
@@ -121,53 +110,77 @@ const Matchmaking = () => {
 
         setIsSearching(true);
         setSearchTime(0);
-        
+        console.log(`DEBUG: Starting matchmaking (isAI: ${isAI})`);
+
         try {
-            // Corrected URL for AI and Human
             const endpoint = isAI ? `${API_BASE}/ai-debate/start` : `${API_BASE}/debate/start-human`;
-            
+            console.log(`DEBUG: Calling API endpoint: ${endpoint}`);
+
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
+                     'Content-Type': 'application/json',
+                     'Authorization': `Bearer ${token}`,
                 },
-                body: JSON.stringify({ 
-                    topic: "Should AI be regulated heavily?" // Mock topic 
-                }),
+                body: JSON.stringify({ topic: "Should AI be regulated heavily?" }),
             });
+            console.log(`DEBUG: API response status: ${response.status}`);
 
             if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.detail || `Matchmaking failed with status ${response.status}`);
+                console.error("DEBUG: API response not OK");
+                // Attempt to parse error detail from backend
+                let errorDetail = `Matchmaking failed with status ${response.status}`;
+                try {
+                    const errorJson = await response.json();
+                    errorDetail = errorJson.detail || errorDetail;
+                } catch (parseError) {
+                    // Ignore if response body isn't JSON
+                }
+                throw new Error(errorDetail);
             }
 
-            // Get data including the newly created debate ID
-            const data = await response.json(); 
-            setTopic(data.topic); 
+            console.log("DEBUG: API response OK, parsing JSON...");
+            const data = await response.json();
+            console.log("DEBUG: API response data:", data);
+
+            // Basic validation of expected fields
+            if (!data || typeof data.topic !== 'string' || typeof data.id !== 'number') {
+                console.error("DEBUG: Invalid data structure from API:", data);
+                throw new Error("Invalid response data structure from server.");
+            }
+
+            setTopic(data.topic);
+            console.log("DEBUG: Topic set successfully.");
 
             if (isAI) {
-                // For AI matches, navigate immediately after creation
+                console.log("DEBUG: Handling AI match...");
                 stopSearching();
-                navigate('/debate', { 
-                    state: { 
-                        debateId: data.id, 
-                        opponent: { id: '1', username: 'AI Bot', elo: 1200, is_ai: true }, 
-                        topic: data.topic 
-                    } 
+                navigate('/debate', {
+                    state: {
+                        debateId: data.id,
+                        opponent: { id: '1', username: 'AI Bot', elo: 1200, is_ai: true },
+                        topic: data.topic
+                    }
                 });
             } else {
-                // For human matches, wait for socket event
-                // CRITICAL FIX: Send the debate ID received from the API call
-                socketRef.current?.emit('join_matchmaking_queue', { 
-                    userId: user.id, 
-                    elo: user.elo,
-                    debateId: data.id // <--- THIS IS THE FIX
-                }); 
+                console.log("DEBUG: Handling Human match, preparing to emit...");
+                if (socketRef.current?.connected) {
+                     console.log("DEBUG: Emitting join_matchmaking_queue with data:", { userId: user.id, elo: user.elo, debateId: data.id });
+                     socketRef.current?.emit('join_matchmaking_queue', {
+                        userId: user.id,
+                        elo: user.elo,
+                        debateId: data.id // Ensure data.id holds the correct debate ID
+                    });
+                    console.log("DEBUG: Emit function called.");
+                } else {
+                     console.error("DEBUG: Socket not connected, cannot emit join_matchmaking_queue.");
+                     toast({ title: "Connection Error", description: "Socket not ready, please try again.", variant: "destructive" });
+                     stopSearching();
+                }
             }
 
         } catch (error) {
-            console.error("Matchmaking initiation failed:", error);
+            console.error("Matchmaking initiation failed inside catch block:", error);
             toast({
                 title: "Matchmaking Error",
                 description: `Could not start search: ${error instanceof Error ? error.message : "Unknown error"}`,
@@ -177,6 +190,7 @@ const Matchmaking = () => {
         }
     };
 
+    // --- JSX Rendering ---
     return (
         <div className="min-h-screen bg-gradient-bg flex items-center justify-center p-4">
             <div className="absolute top-4 left-4">
@@ -194,10 +208,10 @@ const Matchmaking = () => {
                 <CardContent className="space-y-6">
                     <div className="text-center">
                         <p className="text-lg font-semibold text-foreground">
-                            Current ELO: {user?.elo}
+                            Current ELO: {user?.elo ?? 'N/A'} {/* Added fallback */}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                            Mind Tokens: {user?.mind_tokens}
+                            Mind Tokens: {user?.mind_tokens ?? 'N/A'} {/* Added fallback */}
                         </p>
                     </div>
 
@@ -207,6 +221,7 @@ const Matchmaking = () => {
                                 size="lg"
                                 className="w-full bg-cyber-red hover:bg-cyber-red/80"
                                 onClick={() => startMatchmaking(false)}
+                                disabled={!user} // Disable if user data is not loaded
                             >
                                 <Users className="mr-2 h-5 w-5" /> Debate a Human Opponent
                             </Button>
@@ -215,12 +230,14 @@ const Matchmaking = () => {
                                 variant="secondary"
                                 className="w-full bg-cyber-blue hover:bg-cyber-blue/80"
                                 onClick={() => startMatchmaking(true)}
+                                disabled={!user} // Disable if user data is not loaded
                             >
                                 <Bot className="mr-2 h-5 w-5" /> Debate the AI
                             </Button>
                         </div>
                     ) : (
                         <div className="text-center space-y-4">
+                            {/* ... Searching UI ... */}
                             <div className="relative w-20 h-20 mx-auto">
                                 <div className="absolute inset-0 border-4 border-cyber-gold/30 rounded-full"></div>
                                 <div className="absolute inset-0 border-4 border-cyber-gold border-t-transparent rounded-full animate-spin"></div>
@@ -228,18 +245,12 @@ const Matchmaking = () => {
                                     <Swords className="h-10 w-10 animate-pulse" />
                                 </div>
                             </div>
-                            <p className="text-lg font-semibold text-foreground">
-                                Searching for Opponent...
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                                Topic: {topic || 'Determining topic...'}
-                            </p>
+                            <p className="text-lg font-semibold text-foreground">Searching for Opponent...</p>
+                            <p className="text-sm text-muted-foreground">Topic: {topic || 'Determining topic...'}</p>
                             <p className="text-sm font-mono text-cyber-red flex items-center justify-center">
                                 <Clock className="h-4 w-4 mr-1" /> Elapsed: {formatTime(searchTime)}
                             </p>
-                            <Button variant="outline" onClick={stopSearching} className="w-full">
-                                Cancel Search
-                            </Button>
+                            <Button variant="outline" onClick={stopSearching} className="w-full">Cancel Search</Button>
                         </div>
                     )}
                 </CardContent>
