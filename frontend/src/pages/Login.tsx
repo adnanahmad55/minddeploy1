@@ -19,12 +19,13 @@ const Login = () => {
         setIsLoading(true);
 
         try {
-            await login(username, password);
+            // NOTE: The actual API call to /token is handled inside AuthContext.tsx
+            await login(username, password); 
             toast({
                 title: "Login successful",
                 description: "Welcome to MindGrid!",
             });
-            // --- FIX: Successful login redirects to dashboard ---
+            // Successful login redirects to dashboard
             navigate('/dashboard'); 
             
         } catch (error) {
