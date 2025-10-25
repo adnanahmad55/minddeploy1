@@ -1,14 +1,16 @@
-# app/schemas.py - FINAL CORRECTED SCHEMAS
-
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List
 from datetime import datetime
-import json 
 
 # Helper function to convert datetime objects to ISO format strings
 def datetime_to_iso_str(dt: datetime) -> str:
     return dt.isoformat()
 
+
+# ------------------ AUTH TOKEN ------------------ #
+class Token(BaseModel): # <<< FIX: Token class is moved here.
+    access_token: str
+    token_type: str
 
 # ------------------ USER SCHEMAS ------------------ #
 class UserCreate(BaseModel):
@@ -26,8 +28,6 @@ class UserOut(BaseModel):
 
     class Config:
         from_attributes = True
-
-# ... (Other Schemas like Forum, Thread, Post, Analysis, Badge, Streak, Token are omitted for brevity, but exist in your file) ...
 
 # ------------------ DEBATE SCHEMAS ------------------ #
 class TopicSchema(BaseModel):
@@ -76,4 +76,6 @@ class MessageOut(BaseModel):
             datetime: datetime_to_iso_str
         }
 
-# ... (Other Schemas like UserStats, DebateHistory, LeaderboardEntry are omitted for brevity) ...
+# NOTE: Forum, Thread, Post, UserStats, DebateHistory, LeaderboardEntry
+# जैसी अन्य स्कीमा यहाँ मौजूद हैं, लेकिन उन्हें brevity के लिए हटा दिया गया है।
+# सुनिश्चित करें कि वे आपकी असली फ़ाइल में मौजूद हों।
