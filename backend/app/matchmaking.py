@@ -8,11 +8,7 @@ from . import database, models, schemas
 from . evaluation import evaluate_debate
 from typing import Dict, Any
 from datetime import datetime
-from jose import JWTError, jwt # <<< ADDED for token validation
-
-# Assuming SECRET_KEY and ALGORITHM are defined in auth.py or available via env vars
-# Since we don't have auth.py content accessible here, we'll import required logic if possible
-# FALLBACK: Define the required constant if not importable
+from jose import JWTError, jwt
 import os
 SECRET_KEY = os.getenv("JWT_SECRET", "testsecret") # Ensure this matches auth.py
 ALGORITHM = "HS256" # Ensure this matches auth.py
@@ -20,29 +16,25 @@ ALGORITHM = "HS256" # Ensure this matches auth.py
 
 online_users: Dict[str, Any] = {}
 
-# --- ADDED: Socket.IO Connect Handler for Token Validation (Fixes 403) ---
+
+# --- FIX 1: Socket.IO Connect Handler for Token Validation (This is correct) ---
 @sio.event
 async def connect(sid, environ, auth):
     token = auth.get('token')
     if not token:
-        # User must send a token
         print(f"Connection refused for SID {sid}: No token provided.")
         raise ConnectionRefusedError('Authentication token missing')
 
     try:
-        # Validate the token using the same logic as FastAPI auth
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
             print(f"Connection refused for SID {sid}: Invalid payload.")
             raise ConnectionRefusedError('Invalid authentication payload')
         
-        # Optionally, fetch user details and store them in the session
-        # For simplicity, we trust the token payload for now.
-        
-        print(f"SID {sid} connected and authenticated successfully.")
-        # We can store the authenticated email in the session for later use
+        # Store the authenticated email in the session for later use
         await sio.save_session(sid, {'email': email})
+        print(f"SID {sid} connected and authenticated successfully.")
         
     except JWTError:
         print(f"Connection refused for SID {sid}: JWT validation failed.")
@@ -50,16 +42,25 @@ async def connect(sid, environ, auth):
 
 # --- END ADDED CONNECT HANDLER ---
 
-
+# --- FIX 2: Correctly use data in user_online and ensure user ID retrieval ---
 @sio.event
 async def user_online(sid, data):
-    # This handler is called only AFTER the 'connect' handler succeeds
-    # ... (rest of the logic remains the same)
+    # Retrieve user ID, username, and ELO from the data payload sent by the client
+    # data sent from client is: { userId: user.id, username: user.username, elo: user.elo }
     user_id = str(data.get('userId'))
-    if user_id not in online_users:
-        online_users[user_id] = {'username': data.get('username'), 'elo': data.get('elo'), 'id': user_id, 'sid': sid}
-        print(f"User online: {data.get('username')} (ID: {user_id})")
+    username = data.get('username')
+    elo = data.get('elo')
+
+    # IMPORTANT: We still use user_id as the primary key if available, but the client must send it.
+    if user_id and user_id not in online_users:
+        online_users[user_id] = {'username': username, 'elo': elo, 'id': user_id, 'sid': sid}
+        print(f"User online: {username} (ID: {user_id})")
+        # Emit the entire list of currently active users
         await sio.emit('online_users', list(online_users.values()))
+    elif not user_id:
+        print(f"ERROR: user_online event received without a userId from SID: {sid}")
+        # If userId is missing, log the error but don't crash. Matchmaking won't work for this user.
+
 
 @sio.event
 async def user_offline(sid, data):
@@ -68,6 +69,16 @@ async def user_offline(sid, data):
         del online_users[user_id]
         print(f"User offline: (ID: {user_id})")
         await sio.emit('online_users', list(online_users.values()))
+    # NOTE: Also need to handle clean up if user disconnects without sending 'user_offline'
+@sio.event
+async def disconnect(sid):
+    # Search for the user using their SID and remove them
+    user_to_remove = next((u_id for u_id, user_data in online_users.items() if user_data.get('sid') == sid), None)
+    if user_to_remove in online_users:
+        del online_users[user_to_remove]
+        print(f"User disconnected: (ID: {user_to_remove})")
+        await sio.emit('online_users', list(online_users.values()))
+
 
 @sio.event
 async def challenge_user(sid, data):
@@ -187,12 +198,9 @@ async def end_debate(sid, data):
                 losing_player.elo -= elo_change
                 db_debate.winner = winning_player.username
             elif result == 'AI':
-                # FIX: simplified AI winning logic
-                winning_player_id = 0 # This line is unnecessary but harmless
-                losing_player = player1 if player1.id != 0 else player2 # Assuming AI_USER_ID is 0 or 1
-                elo_change = evaluation_result.get('elo_change', 10)
-                # Apply ELO change to the human player who lost
+                # FIX: Simplified AI winning logic
                 losing_player = player1 if db_debate.player1_id != winner_id else player2 
+                elo_change = evaluation_result.get('elo_change', 10)
                 losing_player.elo -= elo_change
                 db_debate.winner = "AI Bot"
             elif result == 'Draw':
