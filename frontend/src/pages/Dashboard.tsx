@@ -1,4 +1,4 @@
-// Dashboard.tsx - FINAL CODE (Fixed Typo in History)
+// Dashboard.tsx - FINAL CODE (Added Name Credit & Fixed Typos)
 
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -126,18 +126,21 @@ const Dashboard = () => {
             <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-card/20 backdrop-blur-sm">
                 <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                     
-                    {/* Logo and Credit */}
+                    {/* --- CRITICAL UI FIX: Logo and Credit --- */}
                     <div className="flex items-center space-x-4">
-                        <div className="flex flex-col items-start -space-y-1">
+                        {/* Logo and Credit Stack */}
+                        <div className="flex flex-col items-start -space-y-1"> {/* Changed to flex-col */}
                             <Link to="/dashboard" className="flex items-center space-x-2">
                                 <Brain className="h-6 w-6 text-cyber-red" />
                                 <span className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
                                     MindGrid
                                 </span>
                             </Link>
+                            {/* ADD THIS LINE */}
                             <p className="text-xs text-muted-foreground opacity-75 pl-1" style={{marginTop: '1px'}}>Made by Adnan Ahmad</p>
                         </div>
                     </div>
+                    {/* --- END CRITICAL UI FIX --- */}
 
                     {/* Navigation Links */}
                     <nav className="hidden md:flex items-center space-x-6">
