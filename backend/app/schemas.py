@@ -56,7 +56,7 @@ class Badge(BaseModel):
     class Config:
         from_attributes = True
 
-class Streak(BaseModel): # <<< FIX: Streak class is added back
+class Streak(BaseModel):
     id: int
     user_id: int
     current_streak: int
@@ -64,7 +64,41 @@ class Streak(BaseModel): # <<< FIX: Streak class is added back
 
     class Config:
         from_attributes = True
-# ----------------------------------------
+
+# --- FORUM SCHEMAS ---
+class Forum(BaseModel): # <<< FIX: Forum class is added back
+    id: int
+    name: str
+    description: str
+
+    class Config:
+        from_attributes = True
+        
+class Thread(BaseModel):
+    id: int
+    title: str
+    forum_id: int
+    user_id: int
+
+    class Config:
+        from_attributes = True
+
+class ThreadCreate(BaseModel):
+    title: str
+    forum_id: int
+
+class Post(BaseModel):
+    id: int
+    content: str
+    thread_id: int
+    user_id: int
+
+    class Config:
+        from_attributes = True
+
+class PostCreate(BaseModel):
+    content: str
+    thread_id: int
 
 # ------------------ DEBATE SCHEMAS ------------------ #
 class TopicSchema(BaseModel):
@@ -113,4 +147,11 @@ class MessageOut(BaseModel):
             datetime: datetime_to_iso_str
         }
 
-# NOTE: अन्य स्कीमा जैसे Forum, Thread, Post, LeaderboardEntry आपकी फाइल में मौजूद होने चाहिए।
+# ------------------ LEADERBOARD SCHEMAS ------------------ #
+class LeaderboardEntry(BaseModel):
+    username: str
+    elo: int
+    mind_tokens: int
+
+    class Config:
+        from_attributes = True
