@@ -1,8 +1,25 @@
-// AuthContext.tsx
+// AuthContext.tsx - F I X E D  V E R S I O N
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-// ... (Interface definitions remain the same) ...
+// --- START: Missing Interface Definitions (Previous Errors) ---
+interface User {
+    id: string;
+    username: string;
+    email: string;
+    elo: number;
+    mind_tokens: number;
+}
+
+interface AuthContextType {
+    user: User | null;
+    token: string | null;
+    login: (username: string, password: string) => Promise<void>;
+    register: (username: string, email: string, password: string) => Promise<void>;
+    logout: () => void;
+    isLoading: boolean;
+}
+// --- END: Missing Interface Definitions ---
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -14,19 +31,23 @@ export const useAuth = () => {
     return context;
 };
 
-// ----------------------------------------------------
-// *** CRITICAL FIX: Use the Environment Variable ***
-// ----------------------------------------------------
-// 💡 VITE_API_URL को सीधे Railway Environment से पढ़ें
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
+// --------------------------------------------------------------------------------
+// *** CRITICAL FIX: API_BASE Moved INSIDE AuthProvider Function ***
+// This resolves the VS Code error and ensures import.meta.env works correctly.
+// --------------------------------------------------------------------------------
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-// ----------------------------------------------------
+    // API_BASE को सीधे Railway Environment से पढ़ें (VITE_API_URL का उपयोग करके)
+    const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    
+    // ----------------------------------------------------
+    // *** Fix for previous deletion: ***
+    // [API_BASE यहाँ से हटा दिया गया है क्योंकि यह अब ग्लोबल है] - यह कमेंट हटा दिया गया है 
+    // ----------------------------------------------------
+
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
     const [isLoading, setIsLoading] = useState(true);
-
-    // [API_BASE यहाँ से हटा दिया गया है क्योंकि यह अब ग्लोबल है]
 
     useEffect(() => {
         const initAuth = async () => {
@@ -60,7 +81,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         formData.append('username', username);
         formData.append('password', password);
 
-        // API_BASE का उपयोग अब ठीक से होगा
+        // API_BASE का उपयोग
         const response = await fetch(`${API_BASE}/login`, { 
             method: 'POST',
             body: formData,
