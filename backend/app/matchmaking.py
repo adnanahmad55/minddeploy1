@@ -2,24 +2,17 @@ from app.socketio_instance import sio
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from app import database, models, schemas
-from app.evaluation import evaluate_debate # Assuming this exists
 from typing import Dict, Any, Optional, List
-from datetime import datetime
-from jose import JWTError, jwt 
 import os
 
 SECRET_KEY = os.getenv("JWT_SECRET", "testsecret")
 ALGORITHM = "HS256"
 
-# NOTE: Since Gunicorn -w 1 is set, these are safe Global lists
+# NOTE: These are safe Global lists
 online_users: Dict[str, Any] = {}
 matchmaking_queue: List[Dict[str, Any]] = []
 
-# ... (connect, user_online, user_offline handlers remain here) ...
-
-# ----------------------------------------------------
-# *** CRITICAL FIX: Matchmaking Queue Logic ***
-# ----------------------------------------------------
+# ... (connect, user_online, user_offline handlers are assumed to be correct) ...
 
 @sio.event
 async def join_matchmaking_queue(sid, data):
@@ -30,8 +23,9 @@ async def join_matchmaking_queue(sid, data):
         await sio.emit('error', {'detail': 'Missing user or debate ID for queue.'}, room=sid)
         return
 
-    # 1. Add user to the queue (after ensuring they aren't already there)
     global matchmaking_queue
+    
+    # CRITICAL FIX 1: Remove user if they are restarting the search
     matchmaking_queue = [q for q in matchmaking_queue if q['user_id'] != user_id]
 
     online_user_data = online_users.get(user_id)
@@ -49,10 +43,11 @@ async def join_matchmaking_queue(sid, data):
     matchmaking_queue.append(user_data)
     print(f"User {user_data['username']} added to queue. Size: {len(matchmaking_queue)}")
     
-    # 2. Check for an immediate match
+    # CRITICAL FIX 2: Check for match only if size is 2 or more (This is the intended fix)
     if len(matchmaking_queue) >= 2:
         
-        # CRITICAL FIX: Pop logic MUST be conditional after checking queue size
+        # Simple FIFO matching (first in, first out)
+        # NOTE: Both pops are safe because len >= 2
         player1 = matchmaking_queue.pop(0) 
         player2 = matchmaking_queue.pop(0) 
         
@@ -68,9 +63,10 @@ async def join_matchmaking_queue(sid, data):
                     db_debate.player2_id = int(player2['user_id']) 
                     db.commit()
                 else:
-                    print(f"WARNING: Debate {player1['debate_id']} not found for matchmaking update.")
-                    # Re-add player2 to queue if match update failed
+                    # If debate creation API failed, re-add players to queue
+                    matchmaking_queue.append(player1)
                     matchmaking_queue.append(player2)
+                    print(f"WARNING: Debate {player1['debate_id']} not found for matchmaking update.")
                     return 
                     
         except Exception as e:
