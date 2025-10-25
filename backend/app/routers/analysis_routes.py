@@ -1,8 +1,8 @@
-# app/routers/analysis_routes.py
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
-from .. import database, models, schemas, auth
-from ..ai import get_ai_response
+# FIX: Changed relative imports to Gunicorn-safe absolute imports
+from app import database, models, schemas, auth 
+from app.ai import get_ai_response # Assuming app.ai is the module path
 
 router = APIRouter(
     prefix="/analysis",
@@ -60,4 +60,5 @@ async def get_analysis(
 
     analysis_content = await get_ai_response(prompt)
 
-    return {"analysis": analysis_content}
+    # NOTE: Schemas.Analysis assumes the return structure is {'analysis': string}
+    return schemas.Analysis(analysis=analysis_content)

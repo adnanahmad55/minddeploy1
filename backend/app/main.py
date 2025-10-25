@@ -1,18 +1,18 @@
-# app/main.py - FINAL WORKING CODE FOR DEPLOYMENT (CORS FIX)
+# app/main.py - FINAL WORKING CODE (CORS CHECK)
 
 from fastapi import FastAPI, Request, Response, WebSocket, WebSocketDisconnect, Query 
 from fastapi.middleware.cors import CORSMiddleware
-# Gunicorn Import Fix: .routers के बजाय app.routers का उपयोग करें
+# Gunicorn Import Fix: app.routers का उपयोग करें
 from app.routers import auth_routes, leaderboard_routes, dashboard_routes, token_routes, gamification_routes, forum_routes, ai_debate_routes, analysis_routes
 from app import debate, matchmaking
-from app.socketio_instance import sio # Gunicorn safe import
+from app.socketio_instance import sio 
 import socketio
 import traceback 
 
-# Define the list of allowed origins explicitly - THIS IS THE CRITICAL CORS LIST
+# Define the list of allowed origins explicitly - CRITICAL
 origins = [
-    "http://localhost:5173", # Local development URL (Vite default)
-    "https://stellar-connection-production.up.railway.app", # YOUR LIVE FRONTEND URL
+    "http://localhost:5173", 
+    "https://stellar-connection-production.up.railway.app", # MUST be correct
 ]
 
 # Create FastAPI instance
@@ -26,7 +26,6 @@ fastapi_app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 # Log incoming requests for debugging (Keeping original logging middleware)
 @fastapi_app.middleware("http")
 async def log_requests(request: Request, call_next):
