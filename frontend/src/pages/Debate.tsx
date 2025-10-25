@@ -57,8 +57,8 @@ const Debate = () => {
 
     // --- Socket Connection and Event Handling ---
     useEffect(() => {
-        if (isNaN(debateId) || !user) {
-            console.error("Debate ID is invalid or user not loaded.");
+        if (isNaN(debateId) || !user || !token) { // Ensure debateId is a valid number and user/token exist
+            console.error("Debate ID is invalid or user/token not loaded.");
             toast({ title: "Error", description: "Invalid debate session.", variant: "destructive" });
             navigate('/dashboard'); // Go back if no valid debate
             return;
@@ -81,8 +81,14 @@ const Debate = () => {
                 fetchInitialMessages();
             });
 
+            // *** CRITICAL FIX: Real-time message update ***
             socketRef.current.on('new_message', (incomingMessage: any) => {
                 console.log('Received new message:', incomingMessage);
+                // Validate incoming data structure
+                if (!incomingMessage || typeof incomingMessage.id === 'undefined' || typeof incomingMessage.timestamp === 'undefined') {
+                    console.error("Invalid message structure received:", incomingMessage);
+                    return; // Don't process invalid messages
+                }
                 // Convert incoming message structure to match frontend's Message interface
                 const formattedMessage: Message = {
                     ...incomingMessage,
@@ -90,15 +96,19 @@ const Debate = () => {
                     sender_id: incomingMessage.sender_id !== null ? Number(incomingMessage.sender_id) : null,
                     timestamp: new Date(incomingMessage.timestamp) // Convert ISO string to Date
                 };
-                
+
                 // Update state, preventing duplicates if optimistic UI was used
                 setMessages(prev => {
+                    // Check for duplicates based on ID (string comparison)
                     if (prev.some(msg => msg.id === formattedMessage.id)) {
+                        console.log(`Duplicate message ID ${formattedMessage.id} detected, skipping update.`);
                         return prev; // Avoid adding duplicate
                     }
-                    return [...prev, formattedMessage];
+                    console.log(`Adding new message ID ${formattedMessage.id} to state.`);
+                    return [...prev, formattedMessage]; // Return the new array
                 });
             });
+             // *** END CRITICAL FIX ***
 
             socketRef.current.on('ai_typing', (data) => {
                  if (data.debateId === debateId) setIsTyping(data.is_typing);
@@ -115,7 +125,7 @@ const Debate = () => {
                 console.error("Socket Connection Error:", error);
                 toast({ title: "Connection Error", description: `Failed to connect: ${error.message}`, variant: "destructive" });
             });
-            
+
              socketRef.current.on('error', (errorData) => {
                   console.error("Socket Server Error:", errorData);
                   toast({ title: "Server Error", description: errorData?.detail || "An error occurred.", variant: "destructive"})
@@ -176,8 +186,6 @@ const Debate = () => {
                     clearInterval(timer);
                     // Emit end_debate event only if time runs out
                     socketRef.current?.emit('end_debate', { debate_id: debateId });
-                    // Optionally navigate after a delay or wait for 'debate_ended' event
-                    // navigate('/Result', { state: { ... } });
                     return 0;
                 }
                 return prev - 1;
@@ -203,14 +211,21 @@ const Debate = () => {
              return;
         }
 
-        const messageData = {
+        const messageData = { // Data structure for AI API
             content: currentMessage,
-            sender_type: 'user' as const, // Explicit type
+            sender_type: 'user' as const,
             sender_id: currentUserId
         };
 
+        const messageToSend = { // Data structure for Socket.IO emit
+             debateId: debateId,
+             senderId: currentUserId, // Send as number
+             content: currentMessage,
+             senderType: 'user' as const
+        };
+
         // --- OPTIONAL: Optimistic UI Update ---
-        // Add message locally immediately for better UX. Remove if causing issues.
+        // Add message locally immediately for better UX.
         const optimisticMessage: Message = {
             id: `temp-${Date.now()}`, // Temporary unique ID
             content: currentMessage,
@@ -221,13 +236,6 @@ const Debate = () => {
         };
         setMessages(prev => [...prev, optimisticMessage]);
         // --- End Optimistic Update ---
-        
-        const messageToSend = { // Data to send to backend
-             debateId: debateId,
-             senderId: currentUserId, // Send as number
-             content: currentMessage,
-             senderType: 'user'
-        };
 
         setCurrentMessage(''); // Clear input immediately
 
@@ -238,9 +246,9 @@ const Debate = () => {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`, // Use current token
+                        'Authorization': `Bearer ${token}`,
                     },
-                    body: JSON.stringify(messageData), // Send content, type, sender_id
+                    body: JSON.stringify(messageData),
                 });
                 if (!response.ok) {
                     // Remove optimistic message if API fails
@@ -250,8 +258,7 @@ const Debate = () => {
                     toast({ title: "Error", description: `AI response error: ${response.status}`, variant: "destructive" });
                     return;
                 }
-                // AI response will arrive via the 'new_message' socket event, handled by useEffect
-                // const aiMessage = await response.json(); // Don't add AI message here
+                // AI response arrives via 'new_message' socket event
                 console.log("AI API call successful, waiting for socket message.");
 
             } catch (error) {
@@ -263,7 +270,7 @@ const Debate = () => {
         } else {
             console.log("Sending message to human opponent via socket...");
             socketRef.current?.emit('send_message_to_human', messageToSend);
-            // Server will broadcast the message back via 'new_message' event
+            // Server broadcasts back via 'new_message' event
         }
     };
 
@@ -276,19 +283,19 @@ const Debate = () => {
 
     // --- End Debate Manually ---
     const endDebate = () => {
-        if (!debateId) return;
+        if (isNaN(debateId)) return; // Check if debateId is valid
         setIsDebateActive(false);
         toast({ title: "Debate ended by user", description: "Calculating results...", });
         socketRef.current?.emit('end_debate', { debate_id: debateId });
-        // Navigation might be triggered by 'debate_ended' event or done here
+        // Maybe navigate after a delay or wait for 'debate_ended' event
         // navigate('/Result', { state: { ... } });
     };
-    
+
     // --- Forfeit ---
      const forfeit = () => {
-         if(!debateId || !user) return;
+         if(isNaN(debateId) || !user) return; // Check if debateId is valid
          toast({ title: "Debate forfeited", description: "Leaving the arena.", variant: "destructive" });
-         // socketRef.current?.emit('forfeit_debate', { debate_id: debateId, user_id: parseInt(user.id, 10) }); // Optional: notify backend
+         // socketRef.current?.emit('forfeit_debate', { debate_id: debateId, user_id: parseInt(user.id, 10) }); // Optional
          navigate('/dashboard');
      };
 
@@ -363,7 +370,7 @@ const Debate = () => {
             {/* Message Area */}
             <div className="flex-1 overflow-hidden">
                 <div className="h-full flex flex-col container mx-auto px-4 py-4">
-                    <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-2"> {/* Added pr-2 for scrollbar space */}
+                    <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-2">
                         {messages.length === 0 && !isTyping && (
                             <div className="text-center py-12 text-muted-foreground">
                                 <Brain className="h-12 w-12 mx-auto mb-4" />
@@ -373,14 +380,13 @@ const Debate = () => {
 
                         {messages.map((message) => {
                              // --- CRITICAL UI FIX: Compare sender_id with current user's ID ---
-                             // Ensure user.id is parsed to a number for comparison
-                             const currentUserId = user ? parseInt(String(user.id), 10) : NaN;
-                             const isCurrentUser = message.sender_id === currentUserId;
+                             const currentUserIdNum = user ? parseInt(String(user.id), 10) : NaN;
+                             const isCurrentUser = message.sender_id === currentUserIdNum;
                              // --- END CRITICAL UI FIX ---
 
                              return (
                                 <div
-                                    key={message.id} // Use the actual message ID as key
+                                    key={message.id} // Use the actual message ID
                                     className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
                                 >
                                     <div className={`max-w-[70%] lg:max-w-[60%] p-3 rounded-lg shadow-md ${
@@ -392,7 +398,8 @@ const Debate = () => {
                                         <p className={`text-xs mt-2 opacity-70 text-right ${
                                              isCurrentUser ? 'text-primary-foreground/70' : 'text-muted-foreground'
                                         }`}>
-                                            {message.timestamp.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                                            {/* Check if timestamp is a valid Date object before formatting */}
+                                            {message.timestamp instanceof Date ? message.timestamp.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '...'}
                                         </p>
                                     </div>
                                 </div>
@@ -444,7 +451,7 @@ const Debate = () => {
                                 </Button>
                             </div>
                         )}
-                         {!isDebateActive && messages.length > 0 && ( // Show button only when debate ended and has messages
+                         {!isDebateActive && messages.length > 0 && ( // Show button only when debate ended
                              <div className="text-center mt-4">
                                 <Button onClick={() => navigate('/Result', { state: { debateId, opponent, topic, messages }})}>
                                     View Results
