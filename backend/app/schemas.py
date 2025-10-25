@@ -8,7 +8,7 @@ def datetime_to_iso_str(dt: datetime) -> str:
 
 
 # ------------------ AUTH TOKEN ------------------ #
-class Token(BaseModel): # <<< FIX: Token class is moved here.
+class Token(BaseModel): 
     access_token: str
     token_type: str
 
@@ -28,6 +28,16 @@ class UserOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+# --- FIX: UserStats class added back ---
+class UserStats(BaseModel):
+    debates_won: int
+    debates_lost: int
+    debates_competed: int
+
+    class Config:
+        from_attributes = True
+# ----------------------------------------
 
 # ------------------ DEBATE SCHEMAS ------------------ #
 class TopicSchema(BaseModel):
@@ -76,6 +86,4 @@ class MessageOut(BaseModel):
             datetime: datetime_to_iso_str
         }
 
-# NOTE: Forum, Thread, Post, UserStats, DebateHistory, LeaderboardEntry
-# जैसी अन्य स्कीमा यहाँ मौजूद हैं, लेकिन उन्हें brevity के लिए हटा दिया गया है।
-# सुनिश्चित करें कि वे आपकी असली फ़ाइल में मौजूद हों।
+# NOTE: अन्य स्कीमा जैसे Forum, Thread, Post, DebateHistory, LeaderboardEntry आपकी फाइल में मौजूद होने चाहिए।
