@@ -29,7 +29,7 @@ class UserOut(BaseModel):
     class Config:
         from_attributes = True
 
-# --- STATS SCHEMAS ---
+# --- STATS & GAMIFICATION SCHEMAS ---
 class UserStats(BaseModel):
     debates_won: int
     debates_lost: int
@@ -38,12 +38,20 @@ class UserStats(BaseModel):
     class Config:
         from_attributes = True
         
-class DebateHistory(BaseModel): # <<< FIX: This class is added back
+class DebateHistory(BaseModel):
     id: int
     topic: str
     opponent_username: str
     winner: Optional[str] 
     date: str
+
+    class Config:
+        from_attributes = True
+        
+class Badge(BaseModel): # <<< FIX: Badge class is added back
+    id: int
+    name: str
+    description: str
 
     class Config:
         from_attributes = True
