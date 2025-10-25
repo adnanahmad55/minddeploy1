@@ -3,7 +3,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from app import database, models, schemas
 from app.evaluation import evaluate_debate # Assuming this exists
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List # <<< FIX: ADDED LIST
 from datetime import datetime
 from jose import JWTError, jwt 
 import os
@@ -13,18 +13,16 @@ ALGORITHM = "HS256"
 
 # Global state for matchmaking queue and online users (Safe since gunicorn -w 1 is used)
 online_users: Dict[str, Any] = {} # {user_id: {username, elo, sid}}
-matchmaking_queue: List[Dict[str, Any]] = [] # [{user_id, elo, sid, debate_id}]
+matchmaking_queue: List[Dict[str, Any]] = [] # <<< FIX: List is now defined
 
+# ... (Your connect and user_online handlers remain below) ...
 
-# ... (Your existing connect and user_offline handlers remain here) ...
 @sio.event
 async def connect(sid, environ, auth: Optional[dict] = None):
-    # ... (Auth logic to handle None and validate token) ...
     # CRITICAL FIX: Check if auth is None before trying to use .get()
     token = auth.get('token') if auth else None 
     
     if not token:
-        # Allow connection but keep it unauthenticated until user_online is called
         print(f"SID {sid} connected without explicit token. Relying on 'user_online' event.")
         return True
 
@@ -52,8 +50,6 @@ async def user_online(sid, data):
     if user_id and username:
         online_users[user_id] = {'username': username, 'elo': data.get('elo'), 'id': user_id, 'sid': sid}
         print(f"User online: {username} (ID: {user_id}). Total: {len(online_users)}")
-        # Broadcasting online users list is often needed by the UI
-        # await sio.emit('online_users', list(online_users.values()))
     
 @sio.event
 async def user_offline(sid, data):
@@ -65,16 +61,13 @@ async def user_offline(sid, data):
             global matchmaking_queue
             matchmaking_queue = [q for q in matchmaking_queue if q['user_id'] != user_id]
             print(f"User offline: (ID: {user_id}). Total: {len(online_users)}. Queue size: {len(matchmaking_queue)}")
-            # await sio.emit('online_users', list(online_users.values()))
 
 
-# ----------------------------------------------------
-# *** NEW CRITICAL MATCHMAKING LOGIC ***
-# ----------------------------------------------------
 @sio.event
 async def join_matchmaking_queue(sid, data):
+    # CRITICAL MATCHMAKING LOGIC
     user_id = str(data.get('userId'))
-    debate_id = data.get('debateId') # Frontend should send the preliminary debate ID
+    debate_id = data.get('debateId') 
 
     if not user_id or not debate_id:
         await sio.emit('error', {'detail': 'Missing user or debate ID for queue.'}, room=sid)
@@ -83,7 +76,6 @@ async def join_matchmaking_queue(sid, data):
     # 1. Add user to the queue
     user_data = next((user for user in matchmaking_queue if user['user_id'] == user_id), None)
     if not user_data:
-        # Get authenticated user info (assuming user_online ran)
         online_user_data = online_users.get(user_id)
         if not online_user_data:
              await sio.emit('toast', {'title': 'Error', 'description': 'Not registered as online.'}, room=sid)
@@ -91,7 +83,7 @@ async def join_matchmaking_queue(sid, data):
              
         user_data = {
             'user_id': user_id,
-            'elo': online_user_data['elo'], # Using ELO for potential future matching logic
+            'elo': online_user_data['elo'], 
             'sid': sid,
             'debate_id': debate_id,
             'username': online_user_data['username']
@@ -100,12 +92,11 @@ async def join_matchmaking_queue(sid, data):
         print(f"User {user_id} added to queue. Size: {len(matchmaking_queue)}")
     
     # 2. Check for an immediate match
-    # CRITICAL: We need at least 2 people in the queue
     if len(matchmaking_queue) >= 2:
         
         # Simple FIFO matching (first in, first out)
         player1 = matchmaking_queue.pop(0) # The first user waiting
-        player2 = matchmaking_queue.pop(0) # The current user (or next waiting)
+        player2 = matchmaking_queue.pop(0) # The next user waiting
         
         print(f"Match Found: {player1['username']} vs {player2['username']}")
 
@@ -116,21 +107,17 @@ async def join_matchmaking_queue(sid, data):
                 db_debate = db.query(models.Debate).filter(models.Debate.id == player1['debate_id']).first()
 
                 if db_debate:
-                    # Update player 2's ID and commit
-                    db_debate.player2_id = int(player2['user_id']) # Player 2 is opponent
-                    # Update the debate ID for player 2's object if needed, but here we update P1's debate.
+                    db_debate.player2_id = int(player2['user_id'])
                     db.commit()
                 else:
                     print(f"WARNING: Debate {player1['debate_id']} not found for matchmaking update.")
-                    return # Or handle reconnection logic
+                    return 
                     
         except Exception as e:
             print(f"CRITICAL DB ERROR during matchmaking: {e}")
             return
 
         # 4. Notify both users about the match
-        
-        # Prepare data for both users
         match_data_for_p1 = {
             'debate_id': db_debate.id,
             'topic': db_debate.topic,
@@ -161,41 +148,5 @@ async def cancel_matchmaking(sid, data):
     print(f"User {user_id} removed from queue. Size: {len(matchmaking_queue)}")
     
     
-# ... (Your other handlers like challenge_user, accept_challenge, decline_challenge, 
-# send_message_to_human, end_debate remain unchanged below) ...
-
-@sio.event
-async def challenge_user(sid, data):
-    # ... (Your existing challenge_user logic) ...
-    # This logic may become redundant if using a queue-based system
-
-    challenger = data.get('challenger')
-    opponent_id = str(data.get('opponentId'))
-    topic = data.get('topic')
-
-    opponent_sid = online_users.get(opponent_id, {}).get('sid')
-    if opponent_sid:
-        await sio.emit('challenge_received', {'challenger': challenger, 'topic': topic}, room=opponent_sid)
-        print(f"Challenge sent from {challenger['username']} to {online_users[opponent_id]['username']}")
-    else:
-        await sio.emit('toast', {'title': 'Opponent Offline', 'description': 'The user you challenged is no longer online.', 'variant': 'destructive'}, room=sid)
-
-@sio.event
-async def accept_challenge(sid, data):
-    # ... (Your existing accept_challenge logic) ...
-    pass # Keeping this for direct challenge method
-
-@sio.event
-async def decline_challenge(sid, data):
-    # ... (Your existing decline_challenge logic) ...
-    pass # Keeping this for direct challenge method
-
-@sio.event
-async def send_message_to_human(sid, data):
-    # ... (Your existing send_message_to_human logic) ...
-    pass
-
-@sio.event
-async def end_debate(sid, data):
-    # ... (Your existing end_debate logic) ...
-    pass
+# NOTE: Other handlers like challenge_user, accept_challenge, end_debate are omitted for brevity.
+# Ensure they are present in your final file.
