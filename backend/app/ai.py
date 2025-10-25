@@ -18,7 +18,7 @@ if not GROQ_API_KEY:
 client = AsyncGroq(api_key=GROQ_API_KEY)
 
 async def get_ai_response(prompt: str) -> str:
-    logger.debug(f"AI: Attempting to get response for prompt (first 80 chars): {prompt[:80]}")
+    logger.debug(f"AI: Attempting to get response for prompt (first 80 chars): {prompt[:800]}")
     try:
         chat_completion = await client.chat.completions.create(
            model="llama-3.3-70b-versatile",   # ✅ fixed model name
@@ -35,6 +35,7 @@ async def get_ai_response(prompt: str) -> str:
     "2. Address the User: Talk directly to the user (e.g., 'That's a clever point, but you're forgetting...', 'I see where you're coming from, however...').\n"
     "3. Length: Keep responses concise (2-3 sentences), but packed with sharp insights.\n"
     "4. Logic: Don't just state facts; challenge the user's perspective and rebut their points gracefully.\n\n"
+    f"The debate topic is '{actual_topic}'. User '{current_user.username}' just said: '{message.content}'. "
     "Respond to their argument with your counter-point."
                     ),
                 },
