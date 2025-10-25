@@ -32,7 +32,6 @@ logs/
 *.sqlite3
 *.db
 alembic/versions/*.pyc
-alembic.ini
 
 # OS
 .DS_Store
@@ -73,8 +72,3 @@ Thumbs.db
 # IDEs and editors
 .vscode/
 .idea/
-
-# lockfiles (optional, depending on team policy)
-# package-lock.json
-# yarn.lock
-# pnpm-lock.yaml
