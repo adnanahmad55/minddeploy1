@@ -2,16 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext'; // Path adjusted to resolve the module error (Assuming Matchmaking.tsx is in src/pages/ and contexts/ is in src/)
 import { toast } from '@/hooks/use-toast';
 import { Brain, Swords, Users, Zap, Clock, ArrowLeft, Bot } from 'lucide-react';
 import io, { Socket } from 'socket.io-client';
 
-// ----------------------------------------------------
-// *** FIX: Define API_BASE using Environment Variable ***
-// ----------------------------------------------------
 // NOTE: VITE_API_URL should be the base URL, e.g., 'https://minddeploy1-production.up.railway.app'
+// Using a simpler expression for API_BASE
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 
 interface Opponent {
     id: string;
@@ -29,14 +28,17 @@ const Matchmaking = () => {
     const socketRef = useRef<Socket | null>(null);
     const timerRef = useRef<number | null>(null);
 
-    // --- FIX 1: Use API_BASE for Socket.IO Connection ---
+    // --- CRITICAL FIX: Force Polling Transport for Stability in Cloud Environments ---
     useEffect(() => {
         if (!socketRef.current && user) {
-            // FIX: Using API_BASE for live connection
-            // The io() function automatically handles the /socket.io/ path.
+            
             socketRef.current = io(API_BASE, { 
                 query: { userId: user.id },
-                auth: { token: token }
+                auth: { token: token },
+                // --- ADDED THIS LINE: Forces connection via HTTP Long Polling ---
+                // This is to bypass the likely issue with Railway's WebSocket proxy handler (400 Bad Request)
+                transports: ['polling'],
+                // ------------------------------------------------------------------
             });
 
             socketRef.current.on('match_found', (data) => {
@@ -51,7 +53,6 @@ const Matchmaking = () => {
 
             socketRef.current.on('connect_error', (error) => {
                 console.error("Socket Connection Error:", error);
-                // The main error is being printed here, which often starts with "iE: xhr poll error"
                 toast({
                     title: "Connection Error",
                     description: "Failed to connect to matchmaking server.",
@@ -60,9 +61,10 @@ const Matchmaking = () => {
                 stopSearching();
             });
             
-            // Emit user_online event immediately after connection for Matchmaking.py logic
             socketRef.current.on('connect', () => {
+                console.log("Socket.IO connected successfully using Polling.");
                 if (user) {
+                    // Emit user_online to register in matchmaking.py
                     socketRef.current?.emit('user_online', { 
                         userId: user.id, 
                         username: user.username, 
@@ -74,7 +76,7 @@ const Matchmaking = () => {
 
         return () => {
             if (socketRef.current) {
-                socketRef.current.emit('user_offline', { userId: user?.id }); // Emit user offline
+                socketRef.current.emit('user_offline', { userId: user?.id });
                 socketRef.current.emit('cancel_matchmaking', { userId: user?.id });
                 socketRef.current.disconnect();
                 socketRef.current = null;
@@ -125,11 +127,8 @@ const Matchmaking = () => {
         setSearchTime(0);
         
         try {
-            // --- FIX 2: Correct the AI Debate URL to match FastAPI's routing ---
-            // AI Debate router prefix: /ai-debate. Endpoint should be /start (as discussed)
+            // Corrected URL: /ai-debate/start
             const endpoint = isAI ? `${API_BASE}/ai-debate/start` : `${API_BASE}/matchmaking/start-human`;
-
-            // NOTE: We are assuming you've added the /ai-debate/start endpoint in your Python code.
             
             const response = await fetch(endpoint, {
                 method: 'POST',
@@ -137,9 +136,9 @@ const Matchmaking = () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,
                 },
-                // Removed redundant userId from body, but assuming TopicSchema is sent
+                // Assuming TopicSchema is sent
                 body: JSON.stringify({ 
-                    topic: "Should AI be regulated heavily?" // Placeholder topic, adjust if dynamic
+                    topic: "Should AI be regulated heavily?" // Mock topic for testing the flow
                 }),
             });
 
@@ -149,7 +148,6 @@ const Matchmaking = () => {
             }
 
             const data = await response.json();
-            // Data received here is likely the created debate object { debate_id, topic, ... }
             setTopic(data.topic); 
 
             if (isAI) {
@@ -157,8 +155,8 @@ const Matchmaking = () => {
                 stopSearching();
                 navigate('/debate', { 
                     state: { 
-                        debateId: data.id, // Assuming the backend returns 'id'
-                        opponent: { id: '1', username: 'AI Bot', elo: 1200, is_ai: true }, // Assuming AI_USER_ID is 1
+                        debateId: data.id, 
+                        opponent: { id: '1', username: 'AI Bot', elo: 1200, is_ai: true }, 
                         topic: data.topic 
                     } 
                 });
