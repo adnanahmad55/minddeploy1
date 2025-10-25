@@ -2,13 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAuth } from '../contexts/AuthContext'; // Path adjusted to resolve the module error (Assuming Matchmaking.tsx is in src/pages/ and contexts/ is in src/)
+import { useAuth } from '@/contexts/AuthContext'; // पाथ ऐलिअस का उपयोग किया जा रहा है
 import { toast } from '@/hooks/use-toast';
 import { Brain, Swords, Users, Zap, Clock, ArrowLeft, Bot } from 'lucide-react';
 import io, { Socket } from 'socket.io-client';
 
 // NOTE: VITE_API_URL should be the base URL, e.g., 'https://minddeploy1-production.up.railway.app'
-// Using a simpler expression for API_BASE
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 
@@ -28,7 +27,7 @@ const Matchmaking = () => {
     const socketRef = useRef<Socket | null>(null);
     const timerRef = useRef<number | null>(null);
 
-    // --- CRITICAL FIX: Force Polling Transport for Stability in Cloud Environments ---
+    // --- CRITICAL FIX: Force Polling Transport for Stability in Cloud Environments (400 Error Fix) ---
     useEffect(() => {
         if (!socketRef.current && user) {
             
@@ -36,7 +35,6 @@ const Matchmaking = () => {
                 query: { userId: user.id },
                 auth: { token: token },
                 // --- ADDED THIS LINE: Forces connection via HTTP Long Polling ---
-                // This is to bypass the likely issue with Railway's WebSocket proxy handler (400 Bad Request)
                 transports: ['polling'],
                 // ------------------------------------------------------------------
             });
@@ -45,8 +43,8 @@ const Matchmaking = () => {
                 console.log('Match found:', data);
                 stopSearching();
                 toast({
-                    title: "Match Found!",
-                    description: `Debating ${data.opponent.username} on: ${data.topic}`,
+                    title: "मैच मिल गया!", // Match Found!
+                    description: `डिबेटिंग ${data.opponent.username} टॉपिक पर: ${data.topic}`, // Debating...
                 });
                 navigate('/debate', { state: { debateId: data.debate_id, opponent: data.opponent, topic: data.topic } });
             });
@@ -54,8 +52,8 @@ const Matchmaking = () => {
             socketRef.current.on('connect_error', (error) => {
                 console.error("Socket Connection Error:", error);
                 toast({
-                    title: "Connection Error",
-                    description: "Failed to connect to matchmaking server.",
+                    title: "कनेक्शन त्रुटि", // Connection Error
+                    description: "मैचमेकिंग सर्वर से कनेक्ट नहीं हो सका।", // Failed to connect...
                     variant: "destructive",
                 });
                 stopSearching();
@@ -127,8 +125,8 @@ const Matchmaking = () => {
         setSearchTime(0);
         
         try {
-            // Corrected URL: /ai-debate/start
-            const endpoint = isAI ? `${API_BASE}/ai-debate/start` : `${API_BASE}/matchmaking/start-human`;
+            // FIX: Corrected URL for AI (to /ai-debate/start) and Human (to /debate/start-human)
+            const endpoint = isAI ? `${API_BASE}/ai-debate/start` : `${API_BASE}/debate/start-human`;
             
             const response = await fetch(endpoint, {
                 method: 'POST',
@@ -168,8 +166,8 @@ const Matchmaking = () => {
         } catch (error) {
             console.error("Matchmaking initiation failed:", error);
             toast({
-                title: "Matchmaking Error",
-                description: `Could not start search: ${error instanceof Error ? error.message : "Unknown error"}`,
+                title: "मैचमेकिंग त्रुटि", // Matchmaking Error
+                description: `खोज शुरू नहीं हो सकी: ${error instanceof Error ? error.message : "अज्ञात त्रुटि"}`, // Could not start search...
                 variant: "destructive",
             });
             stopSearching();
@@ -180,23 +178,23 @@ const Matchmaking = () => {
         <div className="min-h-screen bg-gradient-bg flex items-center justify-center p-4">
             <div className="absolute top-4 left-4">
                 <Button variant="ghost" onClick={() => navigate('/dashboard')}>
-                    <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                    <ArrowLeft className="mr-2 h-4 w-4" /> वापस
                 </Button>
             </div>
             <Card className="max-w-md w-full bg-card/50 border-border/50 p-8 shadow-cyber">
                 <CardHeader className="text-center border-b border-border/50 pb-4 mb-6">
                     <CardTitle className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent flex items-center justify-center">
-                        <Swords className="mr-3 h-7 w-7" /> Neural Matchmaking
+                        <Swords className="mr-3 h-7 w-7" /> न्यूरल मैचमेकिंग
                     </CardTitle>
                 </CardHeader>
 
                 <CardContent className="space-y-6">
                     <div className="text-center">
                         <p className="text-lg font-semibold text-foreground">
-                            Current ELO: {user?.elo}
+                            वर्तमान ELO: {user?.elo}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                            Mind Tokens: {user?.mind_tokens}
+                            माइंड टोकन: {user?.mind_tokens}
                         </p>
                     </div>
 
@@ -207,7 +205,7 @@ const Matchmaking = () => {
                                 className="w-full bg-cyber-red hover:bg-cyber-red/80"
                                 onClick={() => startMatchmaking(false)}
                             >
-                                <Users className="mr-2 h-5 w-5" /> Debate a Human Opponent
+                                <Users className="mr-2 h-5 w-5" /> मानव प्रतिद्वंद्वी से डिबेट करें
                             </Button>
                             <Button
                                 size="lg"
@@ -215,7 +213,7 @@ const Matchmaking = () => {
                                 className="w-full bg-cyber-blue hover:bg-cyber-blue/80"
                                 onClick={() => startMatchmaking(true)}
                             >
-                                <Bot className="mr-2 h-5 w-5" /> Debate the AI
+                                <Bot className="mr-2 h-5 w-5" /> AI से डिबेट करें
                             </Button>
                         </div>
                     ) : (
@@ -228,16 +226,16 @@ const Matchmaking = () => {
                                 </div>
                             </div>
                             <p className="text-lg font-semibold text-foreground">
-                                Searching for Opponent...
+                                प्रतिद्वंद्वी की खोज हो रही है...
                             </p>
                             <p className="text-sm text-muted-foreground">
-                                Topic: {topic || 'Determining topic...'}
+                                विषय: {topic || 'विषय निर्धारित हो रहा है...'}
                             </p>
                             <p className="text-sm font-mono text-cyber-red flex items-center justify-center">
-                                <Clock className="h-4 w-4 mr-1" /> Elapsed: {formatTime(searchTime)}
+                                <Clock className="h-4 w-4 mr-1" /> बीता समय: {formatTime(searchTime)}
                             </p>
                             <Button variant="outline" onClick={stopSearching} className="w-full">
-                                Cancel Search
+                                खोज रद्द करें
                             </Button>
                         </div>
                     )}
