@@ -1,5 +1,12 @@
 # alembic/env.py
+from logging.config import fileConfig
+import os 
+import sys
 
+from sqlalchemy import engine_from_config
+from sqlalchemy import pool
+from sqlalchemy import create_engine  # <--- यह लाइन जोड़ें
+from alembic import context
 # ... (फाइल का ऊपरी हिस्सा - इसमें कोई बदलाव न करें)
 
 def run_migrations_online() -> None:
