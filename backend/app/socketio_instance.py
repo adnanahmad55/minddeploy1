@@ -1,14 +1,22 @@
+# app/socketio_instance.py - FINAL CORRECTED VERSION
+
 import socketio
 
-# Ensure this list is absolutely correct and covers all client URLs
+# Define the explicit list of allowed origins (MUST match main.py and your frontend URL)
 origins = [
     "http://localhost:5173", # Local development
     "https://stellar-connection-production.up.railway.app", # Your production frontend URL
-    # Add any other origins your app might connect from, e.g., staging or custom domains
+    # Add any other origins if needed
 ]
 
 sio = socketio.AsyncServer(
     async_mode="asgi",
-    # Pass the explicit list of origins to fix the 403 error
-    cors_allowed_origins=origins 
+    # CRITICAL FIX: Pass the explicit list of origins here
+    cors_allowed_origins=origins,
+    # Optional: Allow all headers and methods for simplicity during debug
+    cors_credentials=True, 
+    # cors_allowed_methods=["*"], # Usually not needed unless specific methods used
+    # cors_allowed_headers=["*"]  # Usually not needed unless specific headers used
 )
+
+# NOTE: Ensure this 'sio' instance is imported and used in matchmaking.py and main.py
