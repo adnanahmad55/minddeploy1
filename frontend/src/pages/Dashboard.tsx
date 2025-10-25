@@ -1,3 +1,5 @@
+// Dashboard.tsx - FINAL CODE (Added Name Credit)
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -16,9 +18,7 @@ import {
 } from 'lucide-react';
 import heroImage from '@/assets/hero-debate-arena.jpg';
 
-// ----------------------------------------------------
-// *** FIX: Define API_BASE using Environment Variable ***
-// ----------------------------------------------------
+// NOTE: VITE_API_URL should be the base URL
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface DebateHistory {
@@ -43,7 +43,7 @@ interface LeaderboardEntry {
 }
 
 const Dashboard = () => {
-    const { user, logout } = useAuth();
+    const { user, logout, token } = useAuth(); // Get token here
     const navigate = useNavigate();
     const [debates, setDebates] = useState<DebateHistory[]>([]);
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
@@ -54,53 +54,49 @@ const Dashboard = () => {
 
     useEffect(() => {
         const fetchDashboardData = async () => {
-            if (!user) {
+            // Use token from useAuth hook
+            if (!user || !token) { 
                 setIsLoading(false);
                 return;
             }
 
             try {
-                // --- FIX: API_BASE applied to all fetch calls ---
+                // Use token for authenticated requests
+                const authHeader = { Authorization: `Bearer ${token}` };
+
                 const [statsRes, historyRes, leaderboardRes, badgesRes, streaksRes] = await Promise.all([
-                    fetch(`${API_BASE}/dashboard/stats`, { // FIXED URL
-                        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-                    }),
-                    fetch(`${API_BASE}/dashboard/history`, { // FIXED URL
-                        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-                    }),
-                    fetch(`${API_BASE}/leaderboard/`), // FIXED URL
-                    fetch(`${API_BASE}/gamification/badges`), // FIXED URL
-                    fetch(`${API_BASE}/gamification/streaks`, { // FIXED URL
-                        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-                    }),
+                    fetch(`${API_BASE}/dashboard/stats`, { headers: authHeader }),
+                    fetch(`${API_BASE}/dashboard/history`, { headers: authHeader }),
+                    fetch(`${API_BASE}/leaderboard/`), // Assuming public
+                    fetch(`${API_BASE}/gamification/badges`), // Assuming public
+                    fetch(`${API_BASE}/gamification/streaks`, { headers: authHeader }),
                 ]);
 
                 if (!statsRes.ok || !historyRes.ok || !leaderboardRes.ok || !badgesRes.ok || !streaksRes.ok) {
-                    // Check individual status codes for more detail
                     console.error('API Failures:');
                     if (!statsRes.ok) console.error('Stats failed:', statsRes.status);
                     if (!historyRes.ok) console.error('History failed:', historyRes.status);
-                    
+                    // ... (add checks for other responses if needed)
                     throw new Error('One or more API requests failed.');
                 }
 
-                const stats = await statsRes.json();
-                const history = await historyRes.json();
-                const leaderboard = await leaderboardRes.json();
-                const badges = await badgesRes.json();
-                const streaks = await streaksRes.json();
+                const statsData = await statsRes.json();
+                const historyData = await historyRes.json();
+                const leaderboardData = await leaderboardRes.json();
+                const badgesData = await badgesRes.json();
+                const streaksData = await streaksRes.json();
 
-                setStats(stats);
-                setDebates(history);
-                setLeaderboard(leaderboard.map((u, index) => ({ ...u, rank: index + 1 })));
-                setBadges(badges);
-                setStreaks(streaks);
+                setStats(statsData);
+                setDebates(historyData);
+                setLeaderboard(leaderboardData.map((u: any, index: number) => ({ ...u, rank: index + 1 })));
+                setBadges(badgesData);
+                setStreaks(streaksData);
 
             } catch (error) {
                 console.error('Failed to fetch dashboard data:', error);
                 toast({
                     title: "Dashboard Load Error",
-                    description: "Failed to fetch data. Please check server logs.",
+                    description: "Failed to fetch data. Please check connection.", // Simplified error
                     variant: "destructive"
                 });
             } finally {
@@ -109,7 +105,7 @@ const Dashboard = () => {
         };
 
         fetchDashboardData();
-    }, [user]);
+    }, [user, token]); // Add token to dependency array
 
     const handleStartDebate = () => {
         navigate('/matchmaking');
@@ -120,7 +116,7 @@ const Dashboard = () => {
         navigate('/login');
     };
 
-    if (isLoading || !stats) {
+    if (isLoading || !stats) { // Show loading if isLoading or stats are not yet loaded
         return (
             <div className="min-h-screen bg-gradient-bg flex items-center justify-center">
                 <div className="animate-pulse text-cyber-red">Loading neural interface...</div>
@@ -129,27 +125,35 @@ const Dashboard = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-bg">
-            <header className="border-b border-border/50 bg-card/20 backdrop-blur-sm">
+        <div className="min-h-screen bg-gradient-bg text-white"> {/* Added text-white for base color */}
+            <header className="border-b border-border/50 bg-card/20 backdrop-blur-sm sticky top-0 z-50"> {/* Added sticky top */}
                 <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                        <Brain className="h-8 w-8 text-cyber-red" />
-                        <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                            MindGrid
-                        </h1>
+                    
+                    {/* --- CRITICAL UI FIX: Logo and Credit --- */}
+                    <div className="flex flex-col items-start -space-y-1"> {/* Changed to flex-col */}
+                        <div className="flex items-center space-x-3">
+                            <Brain className="h-8 w-8 text-cyber-red" />
+                            <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                                MindGrid
+                            </h1>
+                        </div>
+                         {/* Added your name credit */}
+                        <p className="text-xs text-muted-foreground opacity-75 pl-1" style={{marginTop: '1px'}}>Made by Adnan Ahmad</p>
                     </div>
+                    {/* --- END CRITICAL UI FIX --- */}
+                    
                     <div className="flex items-center space-x-4">
                         <Link to="/leaderboard">
-                            <Button variant="ghost">Leaderboard</Button>
+                            <Button variant="ghost" className="text-muted-foreground hover:text-foreground">Leaderboard</Button> {/* Applied text colors */}
                         </Link>
                         <Link to="/forums">
-                            <Button variant="ghost">Forums</Button>
+                            <Button variant="ghost" className="text-muted-foreground hover:text-foreground">Forums</Button> {/* Applied text colors */}
                         </Link>
                         <div className="text-right">
                             <p className="text-sm text-muted-foreground">Welcome back,</p>
                             <p className="font-semibold text-foreground">{user?.username}</p>
                         </div>
-                        <Button variant="ghost" size="icon" onClick={handleLogout}>
+                        <Button variant="ghost" size="icon" onClick={handleLogout} className="text-muted-foreground hover:text-cyber-red"> {/* Applied text colors */}
                             <LogOut className="h-4 w-4" />
                         </Button>
                     </div>
@@ -157,21 +161,22 @@ const Dashboard = () => {
             </header>
 
             <div className="container mx-auto px-4 py-8">
-                <div className="relative mb-8 rounded-2xl overflow-hidden">
+                <div className="relative mb-8 rounded-2xl overflow-hidden shadow-cyber"> {/* Added shadow */}
                     <img 
                         src={heroImage} 
                         alt="MindGrid Arena" 
                         className="w-full h-64 object-cover"
+                        onError={(e) => (e.currentTarget.src = 'https://placehold.co/1200x300/1a090a/E03A3E?text=MindGrid+Arena')} // Fallback
                     />
-                    <div className="absolute inset-0 bg-gradient-to-r from-background/80 to-transparent flex items-center">
-                        <div className="p-8">
+                    <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/70 to-transparent flex items-center"> {/* Adjusted gradient */}
+                        <div className="p-8 md:p-12"> {/* Added responsive padding */}
                             <h2 className="text-4xl font-bold text-foreground mb-2">
                                 Ready for battle?
                             </h2>
-                            <p className="text-muted-foreground mb-6">
+                            <p className="text-lg text-muted-foreground mb-6"> {/* Added lg text size */}
                                 Enter the neural arena and test your debating skills
                             </p>
-                            <Button size="xl" onClick={handleStartDebate}>
+                            <Button size="lg" onClick={handleStartDebate} className="bg-cyber-red hover:bg-cyber-red/80 text-white shadow-lg"> {/* Sized lg and styled */}
                                 <Swords className="mr-2 h-5 w-5" />
                                 Start Debate
                             </Button>
@@ -180,6 +185,7 @@ const Dashboard = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    {/* Stats Cards */}
                     <Card className="bg-gradient-card border-border/50 p-6">
                         <div className="flex items-center space-x-3">
                             <div className="p-2 bg-cyber-red/20 rounded-lg">
@@ -191,7 +197,6 @@ const Dashboard = () => {
                             </div>
                         </div>
                     </Card>
-
                     <Card className="bg-gradient-card border-border/50 p-6">
                         <div className="flex items-center space-x-3">
                             <div className="p-2 bg-cyber-gold/20 rounded-lg">
@@ -203,7 +208,6 @@ const Dashboard = () => {
                             </div>
                         </div>
                     </Card>
-
                     <Card className="bg-gradient-card border-border/50 p-6">
                         <div className="flex items-center space-x-3">
                             <div className="p-2 bg-cyber-green/20 rounded-lg">
@@ -217,7 +221,6 @@ const Dashboard = () => {
                             </div>
                         </div>
                     </Card>
-
                     <Card className="bg-gradient-card border-border/50 p-6">
                         <div className="flex items-center space-x-3">
                             <div className="p-2 bg-cyber-blue/20 rounded-lg">
@@ -232,6 +235,7 @@ const Dashboard = () => {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Debate History */}
                     <Card className="bg-gradient-card border-border/50 p-6 lg:col-span-2">
                         <h3 className="text-xl font-semibold text-foreground mb-4 flex items-center">
                             <Clock className="mr-2 h-5 w-5 text-cyber-blue" />
@@ -262,6 +266,7 @@ const Dashboard = () => {
                         </div>
                     </Card>
 
+                    {/* Leaderboard Preview */}
                     <Card className="bg-gradient-card border-border/50 p-6">
                         <h3 className="text-xl font-semibold text-foreground mb-4 flex items-center">
                             <Trophy className="mr-2 h-5 w-5 text-cyber-gold" />
@@ -269,7 +274,7 @@ const Dashboard = () => {
                         </h3>
                         <div className="space-y-3">
                             {leaderboard.length > 0 ? (
-                                leaderboard.map((entry) => (
+                                leaderboard.slice(0, 5).map((entry) => ( // Show top 5
                                     <div
                                         key={entry.rank}
                                         className={`flex items-center justify-between p-3 rounded-lg ${
@@ -289,7 +294,6 @@ const Dashboard = () => {
                                         </div>
                                         <div className="text-right">
                                             <p className="text-sm font-semibold text-foreground">{entry.elo} ELO</p>
-                                            <p className="text-xs text-muted-foreground">{entry.mind_tokens} tokens</p>
                                         </div>
                                     </div>
                                 ))
