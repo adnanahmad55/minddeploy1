@@ -2,11 +2,21 @@
 
 from fastapi import FastAPI, Request, Response, WebSocket, WebSocketDisconnect, Query 
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import auth_routes, leaderboard_routes, dashboard_routes, token_routes, gamification_routes, forum_routes, ai_debate_routes, analysis_routes
-from . import debate, matchmaking 
+# --- FIX 1: Import the matchmaking router from the routers directory ---
+# Assuming your Matchmaking router is defined in 'app/routers/matchmaking_routes.py' 
+# or is meant to be part of the main router imports.
+from .routers import auth_routes, leaderboard_routes, dashboard_routes, token_routes, gamification_routes, forum_routes, ai_debate_routes, analysis_routes, matchmaking_routes # <--- FIX: Assumed router file
+# --------------------------------------------------------------------------
+
+# --- FIX 2: Removed unused and conflicting module import ---
+# This was causing the AttributeError
+from . import debate # <-- We keep 'debate' as it might be a required module
+# from . import matchmaking <-- THIS IS NOW GONE (Causing the crash)
+# --------------------------------------------------------------------------
 from .socketio_instance import sio
 import socketio
 import traceback 
+
 
 # Define the list of allowed origins explicitly
 # NOTE: This list should contain your live Frontend URL (e.g., https://stellar-connection-production.up.railway.app)
@@ -94,14 +104,15 @@ async def websocket_endpoint(websocket: WebSocket, group_name: str, username: st
         await manager.broadcast(f"❌ {username} left {group_name}")
 
 # Include routers
+# Include routers
 fastapi_app.include_router(auth_routes.router, tags=["Authentication"])
 fastapi_app.include_router(debate.router, tags=["Debate"])
 fastapi_app.include_router(leaderboard_routes.router, tags=["Leaderboard"])
 fastapi_app.include_router(dashboard_routes.router, tags=["Dashboard"])
 
-# --- FINAL FIX: Matchmaking Router को सही Prefix के साथ जोड़ा गया ---
-# यह /matchmaking/start-ai URL को ठीक करता है।
-fastapi_app.include_router(matchmaking.router, prefix="/matchmaking", tags=["Matchmaking"])
+# --- FINAL FIX: Router को सही Import (matchmaking_routes) से शामिल किया गया ---
+# अब यह 'matchmaking_routes' से router को लेगा और prefix '/matchmaking' देगा।
+fastapi_app.include_router(matchmaking_routes.router, prefix="/matchmaking", tags=["Matchmaking"])
 # --- END FINAL FIX ---
 
 fastapi_app.include_router(token_routes.router, tags=["Token"])
