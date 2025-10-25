@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app import models, schemas, database, auth # Gunicorn-safe absolute imports
+from app import models, schemas, database, auth 
 from app.socketio_instance import sio # Used for potential future emit or in other modules
 
 router = APIRouter(
@@ -30,15 +30,14 @@ def start_human_match_route(
     current_user: models.User = Depends(auth.get_current_user) # Authenticated user
 ):
     """
-    Creates a preliminary debate object to signify a match is being sought.
-    FIX: player2_id is set to None (null) to avoid Foreign Key Violation (Key 0 not found).
+    Creates a preliminary debate object for matchmaking. player2_id is set to None.
     """
     player1_id = current_user.id 
-    placeholder_player2_id = None # CRITICAL FIX: Use None instead of 0 for nullable Foreign Key
+    placeholder_player2_id = None # CRITICAL FIX: Use None instead of 0
     
     db_debate = models.Debate(
         player1_id=player1_id,
-        player2_id=placeholder_player2_id,
+        player2_id=placeholder_player2_id, # This is valid because we fixed models.py
         topic=topic_data.topic,
     )
     db.add(db_debate)
