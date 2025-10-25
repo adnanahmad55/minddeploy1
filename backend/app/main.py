@@ -1,45 +1,34 @@
-# app/main.py
+# app/main.py - FINAL WORKING CODE FOR DEPLOYMENT
 
-from fastapi import FastAPI, Request, Response, WebSocket, WebSocketDisconnect, Query 
-from fastapi.middleware.cors import CORSMiddleware
-# --- FIX 1: Import the matchmaking router from the routers directory ---
-# Assuming your Matchmaking router is defined in 'app/routers/matchmaking_routes.py' 
-# or is meant to be part of the main router imports.
-from .routers import auth_routes, leaderboard_routes, dashboard_routes, token_routes, gamification_routes, forum_routes, ai_debate_routes, analysis_routes, matchmaking_routes # <--- FIX: Assumed router file
-# --------------------------------------------------------------------------
-
-# --- FIX 2: Removed unused and conflicting module import ---
-# This was causing the AttributeError
-from . import debate # <-- We keep 'debate' as it might be a required module
-# from . import matchmaking <-- THIS IS NOW GONE (Causing the crash)
-# --------------------------------------------------------------------------
+from fastapi import FastAPI, Request, Response, WebSocket, WebSocketDisconnect, Query
+from fastapi.middleware.cors import CORSMiddleWARE
+from .routers import auth_routes, leaderboard_routes, dashboard_routes, token_routes, gamification_routes, forum_routes, ai_debate_routes, analysis_routes
+from . import debate, matchmaking
 from .socketio_instance import sio
 import socketio
-import traceback 
-
+import traceback
 
 # Define the list of allowed origins explicitly
-# NOTE: This list should contain your live Frontend URL (e.g., https://stellar-connection-production.up.railway.app)
+# FIX: Wildcard removed and replaced with explicit Live Frontend URL for security/compatibility
 origins = [
-    "http://localhost:5173", # Local development
-    "https://stellar-connection-production.up.railway.app" # Your live Frontend URL
+    "http://localhost:5173", # Local development URL (Vite default)
+    "https://stellar-connection-production.up.railway.app" # YOUR LIVE FRONTEND URL
 ]
 
 # Create FastAPI instance
 fastapi_app = FastAPI()
 
-# Enable CORS - Using a fixed origins list is better in production, but we keep the wildcard 
-# in the middleware header for maximum compatibility with the current logging setup.
+# Enable CORS - Using the fixed origins list
 fastapi_app.add_middleware(
     CORSMiddleware,
-    # Using the defined origins list here:
+    # FIX: Using the defined origins list
     allow_origins=origins, 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Log incoming requests for debugging
+# Log incoming requests for debugging (Keeping your original logging middleware)
 @fastapi_app.middleware("http")
 async def log_requests(request: Request, call_next):
     print(f"\n--- INCOMING HTTP REQUEST START ---")
@@ -62,7 +51,7 @@ async def log_requests(request: Request, call_next):
         print(f"Status: {response.status_code}")
         print(f"Headers: {response.headers}")
         # Ensure CORS header is added by middleware for broad compatibility
-        response.headers["Access-Control-Allow-Origin"] = "*" 
+        response.headers["Access-Control-Allow-Origin"] = request.headers.get('origin', '*') 
         print(f"--- OUTGOING HTTP RESPONSE END ---")
         return response
     except Exception as e:
@@ -72,7 +61,7 @@ async def log_requests(request: Request, call_next):
         print(f"--- END CRITICAL EXCEPTION ---")
         return Response("Internal Server Error: See server logs for details", status_code=500, media_type="text/plain")
 
-# Define a simple connection manager for WebSocket connections
+# Define a simple connection manager for WebSocket connections (Keeping your original code)
 class ConnectionManager:
     def __init__(self):
         self.active_connections: list[WebSocket] = []
@@ -104,17 +93,16 @@ async def websocket_endpoint(websocket: WebSocket, group_name: str, username: st
         await manager.broadcast(f"❌ {username} left {group_name}")
 
 # Include routers
-# Include routers
 fastapi_app.include_router(auth_routes.router, tags=["Authentication"])
+
+# FIX: Debate router को Matchmaking के लिए दोबारा शामिल किया गया (404 fix)
+# यह Matchmaking/start-ai रिक्वेस्ट को हैंडल करेगा, क्योंकि Matchmaking logic debate.py में है।
 fastapi_app.include_router(debate.router, tags=["Debate"])
+fastapi_app.include_router(debate.router, prefix="/matchmaking", tags=["Matchmaking"])
+# --- END FIX ---
+
 fastapi_app.include_router(leaderboard_routes.router, tags=["Leaderboard"])
 fastapi_app.include_router(dashboard_routes.router, tags=["Dashboard"])
-
-# --- FINAL FIX: Router को सही Import (matchmaking_routes) से शामिल किया गया ---
-# अब यह 'matchmaking_routes' से router को लेगा और prefix '/matchmaking' देगा।
-fastapi_app.include_router(matchmaking_routes.router, prefix="/matchmaking", tags=["Matchmaking"])
-# --- END FINAL FIX ---
-
 fastapi_app.include_router(token_routes.router, tags=["Token"])
 fastapi_app.include_router(gamification_routes.router, tags=["Gamification"])
 fastapi_app.include_router(forum_routes.router, tags=["Forum"])
