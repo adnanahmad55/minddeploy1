@@ -12,20 +12,15 @@ ALGORITHM = "HS256"
 online_users: Dict[str, Any] = {}
 matchmaking_queue: List[Dict[str, Any]] = []
 
-# ... (connect, user_online, user_offline handlers are assumed to be correct) ...
+# ... (Other imports and handlers) ...
 
 @sio.event
 async def join_matchmaking_queue(sid, data):
     user_id = str(data.get('userId'))
     debate_id = data.get('debateId') 
 
-    if not user_id or not debate_id:
-        await sio.emit('error', {'detail': 'Missing user or debate ID for queue.'}, room=sid)
-        return
-
+    # 1. Add user to the queue
     global matchmaking_queue
-    
-    # CRITICAL FIX 1: Remove user if they are restarting the search
     matchmaking_queue = [q for q in matchmaking_queue if q['user_id'] != user_id]
 
     online_user_data = online_users.get(user_id)
@@ -44,12 +39,16 @@ async def join_matchmaking_queue(sid, data):
     print(f"User {user_data['username']} added to queue. Size: {len(matchmaking_queue)}")
     
     # 2. Check for an immediate match
-    # CRITICAL FIX: Ensure the queue has AT LEAST 2 members before popping.
+    # CRITICAL FIX: Add an index check to prevent IndexError
     if len(matchmaking_queue) >= 2:
         
-        # NOTE: Both pops are now safe because len >= 2
-        player1 = matchmaking_queue.pop(0) 
-        player2 = matchmaking_queue.pop(0) 
+        # NOTE: Both pops are safe because len >= 2
+        try:
+            player1 = matchmaking_queue.pop(0) 
+            player2 = matchmaking_queue.pop(0) 
+        except IndexError:
+            print("WARNING: IndexError during pop, should not happen if size >= 2.")
+            return # Should not happen, but serves as a safety net
         
         print(f"Match Found: {player1['username']} vs {player2['username']}")
 
