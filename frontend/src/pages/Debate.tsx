@@ -289,7 +289,7 @@ const Debate = () => {
           <div className="flex items-center justify-between">
             <Button variant="ghost" size="sm" onClick={forfeit}>
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Forfeit
+              Back
             </Button>
 
             <div className="flex items-center space-x-3">
