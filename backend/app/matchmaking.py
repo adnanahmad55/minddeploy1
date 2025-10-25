@@ -1,4 +1,4 @@
-# app/matchmaking.py - FINAL COMPLETE CODE
+# app/matchmaking.py - FINAL COMPLETE CODE (Includes Message Handling)
 
 from app.socketio_instance import sio
 from fastapi import HTTPException
@@ -34,22 +34,15 @@ async def connect(sid, environ, auth: Optional[dict] = None):
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
-            # If payload is invalid but token exists, we might still refuse
             print(f"Connection potentially refused for SID {sid}: Invalid token payload.")
-            # raise ConnectionRefusedError('Invalid authentication token payload') # More strict
             return True # Allow connection for now, user_online handles registration
 
-        # Store authenticated email in the session for potential future use
         await sio.save_session(sid, {'email': email})
         print(f"SID {sid} connected and authenticated via token successfully.")
         return True
 
     except JWTError:
         print(f"Connection refused for SID {sid} due to JWT validation failure.")
-        # Depending on requirements, you might allow the connection
-        # but mark the session as unauthenticated, or refuse it.
-        # For now, allow connection but user won't be 'online' properly.
-        # raise ConnectionRefusedError('Token validation failed') # Strict refusal
         return True # Allow connection for now
 
 
@@ -64,8 +57,6 @@ async def user_online(sid, data):
         # Always update the user's entry with the latest SID
         online_users[user_id] = {'username': username, 'elo': elo, 'id': user_id, 'sid': sid}
         print(f"User online: {username} (ID: {user_id}, ELO: {elo}). Total online: {len(online_users)}")
-        # Optionally broadcast the updated online users list if UI needs it
-        # await sio.emit('online_users', list(online_users.values()))
     else:
         print(f"WARNING: Missing userId or username in user_online event for SID {sid}. Data: {data}")
 
@@ -89,8 +80,6 @@ async def user_offline(sid, data=None):
         global matchmaking_queue
         matchmaking_queue = [q for q in matchmaking_queue if q['user_id'] != user_id_to_remove]
         print(f"User offline: {username} (ID: {user_id_to_remove}). Total online: {len(online_users)}. Queue size: {len(matchmaking_queue)}")
-        # Optionally broadcast the updated online users list
-        # await sio.emit('online_users', list(online_users.values()))
 
 
 @sio.event
@@ -106,7 +95,7 @@ async def disconnect(sid):
 @sio.event
 async def join_matchmaking_queue(sid, data):
     """Adds a user to the matchmaking queue and attempts to find a match."""
-    print(f"DEBUG: Received join_matchmaking_queue from SID {sid} with data: {data}") # DEBUG LINE
+    print(f"DEBUG: Received join_matchmaking_queue from SID {sid} with data: {data}")
 
     user_id = str(data.get('userId'))
     debate_id = data.get('debateId')
@@ -132,7 +121,7 @@ async def join_matchmaking_queue(sid, data):
     user_data = {
         'user_id': user_id,
         'elo': online_user_data.get('elo', 1000),
-        'sid': sid, # Use the current SID from the event
+        'sid': sid, # Use the current SID
         'debate_id': debate_id,
         'username': online_user_data.get('username', 'Unknown')
     }
@@ -144,7 +133,7 @@ async def join_matchmaking_queue(sid, data):
         player1 = None
         player2 = None
         try:
-            # Ensure two *different* users are popped
+            # Find the first two users with different IDs
             p1_index = -1
             p2_index = -1
             for i in range(len(matchmaking_queue)):
@@ -155,7 +144,7 @@ async def join_matchmaking_queue(sid, data):
                     break
 
             if p1_index != -1 and p2_index != -1:
-                 # Pop the one with the higher index first to avoid shifting issues
+                 # Pop the one with the higher index first
                  if p1_index > p2_index:
                       player1 = matchmaking_queue.pop(p1_index)
                       player2 = matchmaking_queue.pop(p2_index)
@@ -163,25 +152,25 @@ async def join_matchmaking_queue(sid, data):
                       player2 = matchmaking_queue.pop(p2_index)
                       player1 = matchmaking_queue.pop(p1_index)
             else:
-                 print(f"Matchmaking check: Not enough different users in queue. Size: {len(matchmaking_queue)}")
+                 print(f"Matchmaking check: Not enough different users. Size: {len(matchmaking_queue)}")
                  return
 
         except IndexError:
-            print("WARNING: IndexError during pop, despite size check.")
+            print("WARNING: IndexError during pop.")
             if player1: matchmaking_queue.insert(0, player1)
-            if player2: matchmaking_queue.insert(0, player2) # Check if player2 was assigned
+            if player2: matchmaking_queue.insert(0, player2)
             return
 
         # Double check players are valid
         if not player1 or not player2 or player1.get('user_id') == player2.get('user_id'):
-             print("ERROR: Matchmaking failed after pop, same user or invalid players.")
+             print("ERROR: Matchmaking failed after pop.")
              if player1: matchmaking_queue.insert(0, player1)
              if player2: matchmaking_queue.insert(0, player2)
              return
 
         print(f"Match Found: {player1.get('username', 'P1')} vs {player2.get('username', 'P2')}")
 
-        # Update the debate in the database (Player 1 created the debate)
+        # Update the debate in the database
         db_debate = None
         try:
             with database.SessionLocal() as db:
@@ -208,8 +197,7 @@ async def join_matchmaking_queue(sid, data):
         try:
             p1_sid = player1.get('sid')
             p2_sid = player2.get('sid')
-            if not p1_sid or not p2_sid:
-                 raise ValueError("Missing SID for emit")
+            if not p1_sid or not p2_sid: raise ValueError("Missing SID for emit")
 
             match_data_for_p1 = {
                 'debate_id': db_debate.id, 'topic': db_debate.topic,
@@ -223,6 +211,7 @@ async def join_matchmaking_queue(sid, data):
             await sio.emit('match_found', match_data_for_p1, room=p1_sid)
             await sio.emit('match_found', match_data_for_p2, room=p2_sid)
 
+            # Join users to the debate room *after* notifying them
             await sio.enter_room(p1_sid, str(db_debate.id))
             await sio.enter_room(p2_sid, str(db_debate.id))
 
@@ -244,15 +233,82 @@ async def cancel_matchmaking(sid, data):
     if len(matchmaking_queue) < original_size:
         print(f"User {user_id} removed from queue. Size: {len(matchmaking_queue)}")
 
-# --- Placeholder for other event handlers ---
-# Add send_message_to_human, end_debate, etc. here if they are part of matchmaking.py
-# Example:
-# @sio.event
-# async def send_message_to_human(sid, data):
-#     # ... implementation ...
-#     pass
+# ----------------------------------------------------
+# *** FIX: Added send_message_to_human Handler ***
+# ----------------------------------------------------
+@sio.event
+async def send_message_to_human(sid, data):
+    """Handles receiving a message from a client and broadcasting it to the debate room."""
+    debate_id = data.get('debateId')
+    sender_id = data.get('senderId')
+    content = data.get('content')
+    sender_type = data.get('senderType', 'user') # Assume 'user' if not provided
 
-# @sio.event
-# async def end_debate(sid, data):
-#     # ... implementation ...
-#     pass
+    print(f"DEBUG: Received send_message_to_human for debate {debate_id} from SID {sid}, senderId {sender_id}")
+
+    if not debate_id or not sender_id or content is None:
+        print(f"ERROR send_message_to_human: Missing data for SID {sid}. Data: {data}")
+        await sio.emit('error', {'detail': 'Missing message data (debateId, senderId, content).'}, room=sid)
+        return
+
+    try:
+        # Save message to database
+        with database.SessionLocal() as db:
+            # Optional: Validate if the sender is part of the debate
+            db_debate = db.query(models.Debate).filter(models.Debate.id == debate_id).first()
+            if not db_debate:
+                await sio.emit('error', {'detail': 'Debate not found.'}, room=sid)
+                return
+            
+            # Check if sender is player1 or player2 (if player2 exists)
+            sender_id_int = int(sender_id) # Convert sender_id for comparison
+            if not (db_debate.player1_id == sender_id_int or (db_debate.player2_id and db_debate.player2_id == sender_id_int)):
+                await sio.emit('error', {'detail': 'Not authorized to send message in this debate.'}, room=sid)
+                return
+
+            new_message_db = models.Message(
+                content=content,
+                sender_type=sender_type,
+                debate_id=debate_id,
+                sender_id=sender_id_int,
+            )
+            db.add(new_message_db)
+            db.commit()
+            db.refresh(new_message_db)
+
+            # Prepare message for broadcasting (using Pydantic schema)
+            message_to_broadcast = schemas.MessageOut.from_orm(new_message_db).dict()
+            # Ensure timestamp is ISO format string for JSON
+            if 'timestamp' in message_to_broadcast and isinstance(message_to_broadcast['timestamp'], datetime):
+                message_to_broadcast['timestamp'] = message_to_broadcast['timestamp'].isoformat()
+            
+            # Broadcast the message to everyone in the debate room
+            room_id = str(debate_id)
+            print(f"DEBUG: Broadcasting 'new_message' to room {room_id}. Content: {content[:50]}...")
+            await sio.emit('new_message', message_to_broadcast, room=room_id)
+            print(f"DEBUG: Message broadcasted successfully.")
+
+    except Exception as e:
+        print(f"CRITICAL ERROR in send_message_to_human handler for debate {debate_id}: {e}")
+        await sio.emit('error', {'detail': 'Server error processing message.'}, room=sid)
+
+# ----------------------------------------------------
+# *** Placeholder for end_debate Handler ***
+# ----------------------------------------------------
+@sio.event
+async def end_debate(sid, data):
+     debate_id = data.get('debate_id')
+     print(f"Placeholder: Received end_debate for debate {debate_id}")
+     # TODO: Implement debate ending logic (evaluation, ELO update, notify users)
+     # Example structure:
+     # try:
+     #     with database.SessionLocal() as db:
+     #         # ... Fetch debate, messages, players ...
+     #         # evaluation_result = await evaluate_debate(messages)
+     #         # ... Update ELO, winner status ...
+     #         # db.commit()
+     #         # await sio.emit('debate_ended', { ... results ... }, room=str(debate_id))
+     # except Exception as e:
+     #     print(f"CRITICAL ERROR in end_debate handler: {e}")
+     #     await sio.emit('error', {'detail': 'Server error ending debate.'}, room=sid)
+     pass # Remove this pass when implementing
