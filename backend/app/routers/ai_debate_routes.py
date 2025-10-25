@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session, joinedload
 from .. import database, models, schemas, auth
 from ..ai import get_ai_response
 from ..socketio_instance import sio
-import pdb 
+import pdb  # For debugging purposes
 
 import logging
 from datetime import datetime
@@ -15,44 +15,38 @@ router = APIRouter(
     tags=["AI Debate"]
 )
 
-# AI User ID (Must exist in your database's User table)
-AI_USER_ID = 1
+AI_USER_ID = 1 # Make sure this matches the actual AI user ID in your database
 
-# ----------------- NEW ENDPOINT: START AI DEBATE -----------------
 @router.post("/start", response_model=schemas.DebateOut)
 async def start_ai_debate_route(
-    topic_data: schemas.TopicSchema, # Assuming a schema like { "topic": "some topic string" }
+    topic_data: schemas.TopicSchema, # Using the TopicSchema defined in schemas.py
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(auth.get_current_user)
 ):
     """
-    Creates a new Debate entry between the current user and the AI.
-    This handles the POST request from the '/ai-debate/start' URL.
+    Creates a new Debate entry between the current user and the AI (AI_USER_ID).
+    URL: /ai-debate/start
     """
-    logger.debug(f"DEBUG: [START AI] User {current_user.id} starting AI debate on topic: {topic_data.topic}")
     
-    # Check if the AI user exists
-    if AI_USER_ID is None:
-        raise HTTPException(status_code=500, detail="AI opponent ID is not configured.")
-
-    # 1. Create the debate entry
+    # 1. Create the debate with user and AI
+    # FIX: Removed 'is_ai_debate=True' as it caused TypeError in SQLAlchemy
     db_debate = models.Debate(
         player1_id=current_user.id,
         player2_id=AI_USER_ID,
         topic=topic_data.topic,
-        is_ai_debate=True # Optional: helpful for tracking
+        # is_ai_debate=True  <-- REMOVED THIS INVALID KEYWORD
     )
     db.add(db_debate)
     db.commit()
     db.refresh(db_debate)
     
-    logger.info(f"INFO: New AI Debate created with ID: {db_debate.id} for user {current_user.id}.")
+    logger.info(f"AI Debate started for user {current_user.id}. Debate ID: {db_debate.id}")
     
-    # NOTE: The frontend expects the full debate object to navigate.
+    # Optional: Send a success event or initial AI message if needed
+    
     return db_debate
 
-# ----------------- EXISTING ENDPOINT: CREATE AI MESSAGE -----------------
-# NOTE: Frontend will call this endpoint AFTER the debate is created.
+
 @router.post("/{debate_id}/{topic}", response_model=schemas.MessageOut)
 async def create_ai_message_route(
     debate_id: int,
@@ -61,11 +55,13 @@ async def create_ai_message_route(
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(auth.get_current_user)
 ):
-    # ... (rest of your existing message creation and AI logic) ...
+    # ... (rest of your code, now 'datetime' will be defined for isinstance checks) ...
     logger.debug(f"DEBUG: [1] Entering create_ai_message_route for debate {debate_id}")
     # ...
     try:
         # ... (user message saving logic) ...
+        # debate_obg= db.query(models.Debate).filter(models.Debate.id == debate_id).first()
+        # user_obj = db.query(models.User).filter(models.User.id == current_user.id).first()
         user_message = models.Message(
             content=message.content,
             sender_type='user',
@@ -77,6 +73,8 @@ async def create_ai_message_route(
         db.refresh(user_message)
         logger.debug(f"DEBUG: [3] User message saved successfully with ID: {user_message.id}")
 
+        # pdb.set_trace()  # <-- Set a breakpoint here to inspect the user_message object
+        # Manual datetime serialization for Socket.IO emit (if schemas.py fix isn't picked up)
         user_message_data = schemas.MessageOut.from_orm(user_message).dict()
         if 'timestamp' in user_message_data and isinstance(user_message_data['timestamp'], datetime):
             user_message_data['timestamp'] = user_message_data['timestamp'].isoformat()
