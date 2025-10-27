@@ -73,8 +73,8 @@ const Debate = () => {
              console.log(`Initializing socket for Debate ID: ${debateId}, User ID: ${user.id}`);
              // Connect using the API base URL, send token for auth, force polling
              socketRef.current = io(API_BASE, {
-                auth: { token: token },
-                transports: ['polling']
+                 auth: { token: token },
+                 transports: ['polling']
             });
 
             // --- Event Listeners Setup ---
@@ -138,7 +138,7 @@ const Debate = () => {
                      console.log("AI Typing status:", data.is_typing);
                      // Only set typing to true here, false is handled by new_message
                      if (data.is_typing) {
-                          setIsTyping(true);
+                         setIsTyping(true);
                      }
                 }
             });
@@ -194,8 +194,8 @@ const Debate = () => {
      const fetchInitialMessages = async () => {
          // Added check for NaN debateId
          if (isNaN(debateId) || !token) {
-              console.error("Cannot fetch messages: Invalid debateId or no token.");
-              return;
+             console.error("Cannot fetch messages: Invalid debateId or no token.");
+             return;
          }
          console.log("Fetching initial messages...");
          try {
@@ -217,7 +217,7 @@ const Debate = () => {
              console.error("Error fetching initial messages:", error);
              toast({ title: "Error loading history", description: "Could not fetch messages.", variant: "destructive" });
          }
-     };
+    };
 
     // --- Timer ---
     useEffect(() => {
@@ -359,7 +359,7 @@ const Debate = () => {
          toast({ title: "Debate forfeited", description: "Leaving the arena.", variant: "destructive" });
          // socketRef.current?.emit('forfeit_debate', { debate_id: debateId, user_id: parseInt(user.id, 10) }); // Optional
          navigate('/dashboard'); // Navigate immediately
-     };
+    };
 
     // --- Helper to format time (MM:SS) ---
     const formatTime = (seconds: number) => {
@@ -407,31 +407,30 @@ const Debate = () => {
             {/* --- CRITICAL UI FIX: Player Info Section - SWAPPED --- */}
             <div className="border-b border-border/50 bg-muted/10">
                  <div className="container mx-auto px-4 py-3">
-                     <div className="flex items-center justify-between">
-                         {/* OPPONENT NOW ON THE LEFT */}
-                         <div className="flex items-center space-x-3">
-                             <div className={`p-2 rounded-lg ${opponent?.is_ai ? 'bg-cyber-gold/20' : 'bg-cyber-red/20'}`}>
-                                 {opponent?.is_ai ? <Bot className="h-5 w-5 text-cyber-gold" /> : <Sword className="h-5 w-5 text-cyber-red" />}
-                             </div>
-                             <div>
-                                 <p className="font-semibold text-foreground">{opponent?.username ?? 'Opponent'}</p>
-                                 <p className="text-sm text-muted-foreground">{opponent?.elo ?? '?'} ELO</p>
-                             </div>
-                         </div>
+                      <div className="flex items-center justify-between">
+                           {/* OPPONENT NOW ON THE LEFT */}
+                           <div className="flex items-center space-x-3">
+                                <div className={`p-2 rounded-lg ${opponent?.is_ai ? 'bg-cyber-gold/20' : 'bg-cyber-red/20'}`}>
+                                     {opponent?.is_ai ? <Bot className="h-5 w-5 text-cyber-gold" /> : <Sword className="h-5 w-5 text-cyber-red" />}
+                                </div>
+                                <div>
+                                     <p className="font-semibold text-foreground">{opponent?.username ?? 'Opponent'}</p>
+                                     <p className="text-sm text-muted-foreground">{opponent?.elo ?? '?'} ELO</p>
+                                </div>
+                           </div>
 
-                         {/* VS Separator */}
-                         <div className="text-center"> <div className="text-2xl">⚔️</div> <p className="text-xs text-muted-foreground">VS</p> </div>
+                           {/* VS Separator */}
+                           <div className="text-center"> <div className="text-2xl">⚔️</div> <p className="text-xs text-muted-foreground">VS</p> </div>
 
-                         {/* CURRENT USER NOW ON THE RIGHT */}
-                         <div className="flex items-center space-x-3">
-                             <div>
-                                 <p className="font-semibold text-foreground text-right">{user?.username ?? 'You'}</p>
-                                 <p className="text-sm text-muted-foreground text-right">{user?.elo ?? '?'} ELO</p>
-Horizontal ELO alignment (text-right)
-                             </div>
-                             <div className="p-2 bg-cyber-blue/20 rounded-lg"> <Shield className="h-5 w-5 text-cyber-blue" /> </div>
-                         </div>
-                     </div>
+                           {/* CURRENT USER NOW ON THE RIGHT */}
+                           <div className="flex items-center space-x-3">
+                                <div>
+                                     <p className="font-semibold text-foreground text-right">{user?.username ?? 'You'}</p>
+                                     <p className="text-sm text-muted-foreground text-right">{user?.elo ?? '?'} ELO</p>
+                                </div>
+                                <div className="p-2 bg-cyber-blue/20 rounded-lg"> <Shield className="h-5 w-5 text-cyber-blue" /> </div>
+                           </div>
+                      </div>
                  </div>
             </div>
              {/* --- END CRITICAL UI FIX --- */}
@@ -459,27 +458,27 @@ Horizontal ELO alignment (text-right)
                              // --- END CRITICAL UI FIX ---
 
                              return (
-                                <div
-                                    key={message.id} // Use unique message ID
-                                    className={`flex w-full ${isCurrentUser ? 'justify-end' : 'justify-start'}`} // Alignment Fix
-                                >
-                                    {/* Message Bubble */}
-                                    <div className={`max-w-[70%] lg:max-w-[60%] p-3 rounded-lg shadow-md break-words ${ // Ensure long words break
-                                        isCurrentUser
-                                        ? 'bg-gradient-primary text-primary-foreground' // Your style
-                                        : 'bg-gradient-card border border-border/50 text-gray-300' // Opponent style
-                                    }`}>
-                                        {/* Message Content */}
-                                        <p className="text-sm leading-relaxed">{message.content}</p>
-                                        {/* Timestamp */}
-                                        <p className={`text-xs mt-2 opacity-70 text-right ${
-                                             isCurrentUser ? 'text-primary-foreground/70' : 'text-muted-foreground'
-                                        }`}>
-                                            {/* Format Date object, show placeholder if invalid */}
-                                            {message.timestamp instanceof Date ? message.timestamp.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '...'}
-                                        </p>
-                                    </div>
-                                </div>
+                                 <div
+                                     key={message.id} // Use unique message ID
+                                     className={`flex w-full ${isCurrentUser ? 'justify-end' : 'justify-start'}`} // Alignment Fix
+                                 >
+                                     {/* Message Bubble */}
+                                     <div className={`max-w-[70%] lg:max-w-[60%] p-3 rounded-lg shadow-md break-words ${ // Ensure long words break
+                                         isCurrentUser
+                                         ? 'bg-gradient-primary text-primary-foreground' // Your style
+                                         : 'bg-gradient-card border border-border/50 text-gray-300' // Opponent style
+                                     }`}>
+                                         {/* Message Content */}
+                                         <p className="text-sm leading-relaxed">{message.content}</p>
+                                         {/* Timestamp */}
+                                         <p className={`text-xs mt-2 opacity-70 text-right ${
+                                              isCurrentUser ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                                         }`}>
+                                             {/* Format Date object, show placeholder if invalid */}
+                                             {message.timestamp instanceof Date ? message.timestamp.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '...'}
+                                         </p>
+                                     </div>
+                                 </div>
                              );
                         })}
 
@@ -527,23 +526,23 @@ Horizontal ELO alignment (text-right)
                         {/* Helper text and End Debate button (only if active) */}
                         {isDebateActive && (
                              <div className="flex justify-between items-center mt-3">
-                                <p className="text-xs text-muted-foreground">
-                                    Press Enter to send • Shift+Enter for new line
-                                </p>
-                                <Button variant="outline" size="sm" onClick={endDebate}>
-                                    End Debate
-                                </Button>
-                            </div>
+                                 <p className="text-xs text-muted-foreground">
+                                     Press Enter to send • Shift+Enter for new line
+                                 </p>
+                                 <Button variant="outline" size="sm" onClick={endDebate}>
+                                     End Debate
+                                 </Button>
+                             </div>
                         )}
                          {/* View Results button (only if ended and messages exist) */}
                          {!isDebateActive && messages.length > 0 && (
                              <div className="text-center mt-4">
-                                {/* Pass necessary state to results page */}
-                                <Button onClick={() => navigate('/Result', { state: { debateId, opponent, topic, messages: messagesRef.current }})}>
-                                    View Results
-                                </Button>
+                                 {/* Pass necessary state to results page */}
+                                 <Button onClick={() => navigate('/Result', { state: { debateId, opponent, topic, messages: messagesRef.current }})}>
+                                     View Results
+                                 </Button>
                              </div>
-                        )}
+                         )}
                     </div>
                 </div>
             </div>
