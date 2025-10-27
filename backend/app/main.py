@@ -11,10 +11,9 @@ import traceback
 
 # Define the list of allowed origins explicitly - CRITICAL
 origins = [
-    "http://localhost",
-    "http://localhost:5173",
+    
     "https://striking-laughter-production-3040.up.railway.app",  # Frontend
-    "https://minddeploy1-production.up.railway.app",  # Backend own URL
+    # Backend own URL
 ]
 # Create FastAPI instance
 fastapi_app = FastAPI()
