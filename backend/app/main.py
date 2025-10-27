@@ -20,10 +20,9 @@ import traceback
 
 # ✅ Allowed Origin List (Your Local + Frontend + Backend)
 origins = [
-    "http://localhost",
-    "http://localhost:5173",
+    
     "https://striking-laughter-production-3040.up.railway.app",   # Frontend Deployed
-    "https://minddeploy1-production.up.railway.app",             # Backend Deployed
+               # Backend Deployed
 ]
 
 # ✅ Create FastAPI App

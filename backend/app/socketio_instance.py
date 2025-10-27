@@ -5,7 +5,7 @@ import socketio
 # Define the explicit list of allowed origins (MUST match main.py and your frontend URL)
 origins = [
     "http://localhost:5173", # Local development
-    "https://stellar-connection-production.up.railway.app", # Your production frontend URL
+    "https://striking-laughter-production-3040.up.railway.app", # Your production frontend URL
     # Add any other origins if needed
 ]
 
