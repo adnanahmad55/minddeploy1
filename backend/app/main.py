@@ -83,9 +83,9 @@ async def websocket_endpoint(websocket: WebSocket, group_name: str, username: st
         await manager.broadcast(f"❌ {username} left {group_name}")
 
 # ✅ Include Routers Properly
+# Include routers
 fastapi_app.include_router(auth_routes.router, tags=["Authentication"])
-fastapi_app.include_router(debate.router, tags=["Debate"])  # Debate Routes
-fastapi_app.include_router(matchmaking.router, prefix="/matchmaking", tags=["Matchmaking"])  # ✅ FIXED
+fastapi_app.include_router(debate.router, tags=["Debate"])  # Debate & Matchmaking logic internal
 fastapi_app.include_router(leaderboard_routes.router, tags=["Leaderboard"])
 fastapi_app.include_router(dashboard_routes.router, tags=["Dashboard"])
 fastapi_app.include_router(token_routes.router, tags=["Token"])
