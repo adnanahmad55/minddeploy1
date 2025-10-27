@@ -12,7 +12,7 @@ import traceback
 # Define the list of allowed origins explicitly - CRITICAL
 origins = [
     "http://localhost:5173", 
-    "https://stellar-connection-production.up.railway.app", # MUST be correct
+    "https://striking-laughter-production-3040.up.railway.app", # MUST be correct
 ]
 
 # Create FastAPI instance
