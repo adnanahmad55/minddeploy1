@@ -88,7 +88,7 @@ fastapi_app.include_router(auth_routes.router, tags=["Authentication"])
 
 # FIX: Debate router now correctly included
 fastapi_app.include_router(debate.router, tags=["Debate"])
-fastapi_app.include_router(debate.router, prefix="/matchmaking", tags=["Matchmaking"])
+fastapi_app.include_router(matchmaking.router, prefix="/matchmaking", tags=["Matchmaking"])
 # --- END FIX ---
 
 fastapi_app.include_router(leaderboard_routes.router, tags=["Leaderboard"])
