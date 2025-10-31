@@ -11,12 +11,8 @@ origins = [
 
 sio = socketio.AsyncServer(
     async_mode="asgi",
-    # CRITICAL FIX: Pass the explicit list of origins here
-    cors_allowed_origins=origins,
-    # Optional: Allow all headers and methods for simplicity during debug
+    # 💥 FINAL TEST: Use Wildcard to rule out CORS 💥
+    cors_allowed_origins="*", 
     cors_credentials=True, 
-    # cors_allowed_methods=["*"], # Usually not needed unless specific methods used
-    # cors_allowed_headers=["*"]  # Usually not needed unless specific headers used
 )
-
 # NOTE: Ensure this 'sio' instance is imported and used in matchmaking.py and main.py
