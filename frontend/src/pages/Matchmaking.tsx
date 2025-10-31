@@ -30,13 +30,13 @@ const Matchmaking = () => {
     useEffect(() => {
         // Only connect if user is logged in
         if (!socketRef.current && user && token) {
-             // Ensure socketUrl is correctly formatted (https for production)
-             const socketUrl = API_BASE.startsWith('http') ? API_BASE : `https://${API_BASE}`;
-             
+             // Ensure socketUrl has HTTPS protocol for production stability
+             const socketUrl = API_BASE.startsWith('http') ? API_BASE : `https://${API_BASE}`;
+
              console.log("Setting up Socket.IO connection for matchmaking...");
              socketRef.current = io(socketUrl, {
                 auth: { token: token },      // Send token for authentication
-                // ✅ FIX 1: Use WebSocket only to bypass 400 xhr poll error
+                // ✅ FINAL FIX: Use WebSocket only to bypass 400 xhr poll error
                 transports: ['websocket'],   
                 upgrade: false            
             });
@@ -78,17 +78,17 @@ const Matchmaking = () => {
                   toast({ title: "Server Error", description: errorData?.detail || "An error occurred.", variant: "destructive"})
                   // Decide if searching should stop based on the error
              });
+
         }
 
         // --- Cleanup Function ---
         return () => {
             if (socketRef.current) {
                 console.log("Cleaning up matchmaking socket connection.");
-                 
-                // ✅ FIX 2: Connection Loss Fix: user_offline aur cancel_matchmaking pahle emit karo
-                socketRef.current.emit('user_offline', { userId: user?.id }); 
+                // Notify backend user is going offline
+                socketRef.current.emit('user_offline', { userId: user?.id });
+                // If user was searching, cancel it
                 socketRef.current.emit('cancel_matchmaking', { userId: user?.id });
-                
                 // Remove listeners and disconnect
                 socketRef.current.off('connect');
                 socketRef.current.off('match_found');
