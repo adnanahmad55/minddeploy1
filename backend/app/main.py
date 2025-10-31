@@ -65,13 +65,27 @@ async def log_requests(request: Request, call_next):
 class ConnectionManager:
     def __init__(self):
         self.active_connections: list[WebSocket] = []
-    # ... (ConnectionManager methods) ...
+
+    async def connect(self, websocket: WebSocket, username: str):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        if websocket in self.active_connections:
+            self.active_connections.remove(websocket)
+
+    async def broadcast(self, message: str):
+        for connection in self.active_connections:
+            try:
+                await connection.send_text(message)
+            except RuntimeError as e:
+                print(f"Error sending to connection: {e}")
+                self.disconnect(connection)
 
 manager = ConnectionManager()
 
 @fastapi_app.websocket("/ws/{group_name}")
 async def websocket_endpoint(websocket: WebSocket, group_name: str, username: str = Query(...)):
-    # ... (Your WebSocket logic remains unchanged) ...
     await manager.connect(websocket, username)
     await manager.broadcast(f"📢 {username} joined {group_name}")
     try:
@@ -85,15 +99,12 @@ async def websocket_endpoint(websocket: WebSocket, group_name: str, username: st
 
 # Include routers
 fastapi_app.include_router(auth_routes.router, tags=["Authentication"])
-# ✅ FIX: Matchmaking router ko uske sahi module se include karo
+
+# ✅ FIX 1: Matchmaking router ko sahi module se include karo
 fastapi_app.include_router(matchmaking.router, prefix="/matchmaking", tags=["Matchmaking"]) 
 
-# ✅ FIX: Debate router ko single time include karo
+# ✅ FIX 2: Debate router ko single time include karo (Pichli duplicate lines removed)
 fastapi_app.include_router(debate.router, tags=["Debate"])
-# FIX: Debate router now correctly included
-fastapi_app.include_router(debate.router, tags=["Debate"])
-fastapi_app.include_router(debate.router, prefix="/matchmaking", tags=["Matchmaking"])
-# --- END FIX ---
 
 fastapi_app.include_router(leaderboard_routes.router, tags=["Leaderboard"])
 fastapi_app.include_router(dashboard_routes.router, tags=["Dashboard"])
