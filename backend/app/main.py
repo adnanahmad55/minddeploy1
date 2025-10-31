@@ -100,10 +100,10 @@ async def websocket_endpoint(websocket: WebSocket, group_name: str, username: st
 # Include routers
 fastapi_app.include_router(auth_routes.router, tags=["Authentication"])
 
-# ✅ FIX 1: Matchmaking router ko sahi module se include karo
+# ✅ FIX 1: Matchmaking router ko sahi prefix se include karo
 fastapi_app.include_router(matchmaking.router, prefix="/matchmaking", tags=["Matchmaking"]) 
 
-# ✅ FIX 2: Debate router ko single time include karo (Pichli duplicate lines removed)
+# ✅ FIX 2: Debate router ko single time include karo. debate.py mein base prefix /debate hai.
 fastapi_app.include_router(debate.router, tags=["Debate"])
 
 fastapi_app.include_router(leaderboard_routes.router, tags=["Leaderboard"])
