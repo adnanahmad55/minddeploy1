@@ -10,10 +10,12 @@ origins = [
 ]
 # app/socketio_instance.py
 
+# app/socketio_instance.py
+
 sio = socketio.AsyncServer(
     async_mode="asgi",
-    # '*' ko apne specific URL se replace karo
-    cors_allowed_origins=["https://virtuous-harmony-production-273c.up.railway.app"], 
+    # 💥 FINAL FIX: Sab allow karo
+    cors_allowed_origins="*", 
     cors_credentials=True, 
 )
 # NOTE: Ensure this 'sio' instance is imported and used in matchmaking.py and main.py
