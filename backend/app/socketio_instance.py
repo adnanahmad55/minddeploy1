@@ -8,11 +8,12 @@ origins = [
     "https://virtuous-harmony-production-273c.up.railway.app", # Your production frontend URL
     # Add any other origins if needed
 ]
+# app/socketio_instance.py
 
 sio = socketio.AsyncServer(
     async_mode="asgi",
-    # 💥 FINAL TEST: Use Wildcard to rule out CORS 💥
-    cors_allowed_origins="*", 
+    # '*' ko apne specific URL se replace karo
+    cors_allowed_origins=["https://virtuous-harmony-production-273c.up.railway.app"], 
     cors_credentials=True, 
 )
 # NOTE: Ensure this 'sio' instance is imported and used in matchmaking.py and main.py
