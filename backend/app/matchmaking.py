@@ -1,5 +1,5 @@
 # app/matchmaking.py - FINAL COMPLETE CODE (All Handlers Included)
-from fastapi import APIRouter
+
 from app.socketio_instance import sio
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
@@ -18,7 +18,7 @@ ALGORITHM = "HS256"
 # NOTE: These are safe Global lists because Gunicorn worker is set to 1
 online_users: Dict[str, Any] = {} # {user_id: {username, elo, sid}}
 matchmaking_queue: List[Dict[str, Any]] = [] # [{user_id, elo, sid, debate_id, username}]
-router = APIRouter()
+
 
 # --- Socket.IO Event Handlers ---
 

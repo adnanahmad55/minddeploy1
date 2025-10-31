@@ -86,6 +86,7 @@ manager = ConnectionManager()
 
 @fastapi_app.websocket("/ws/{group_name}")
 async def websocket_endpoint(websocket: WebSocket, group_name: str, username: str = Query(...)):
+    # ... (Your WebSocket logic remains unchanged) ...
     await manager.connect(websocket, username)
     await manager.broadcast(f"📢 {username} joined {group_name}")
     try:
@@ -99,12 +100,15 @@ async def websocket_endpoint(websocket: WebSocket, group_name: str, username: st
 
 # Include routers
 fastapi_app.include_router(auth_routes.router, tags=["Authentication"])
-
-# ✅ FIX 1: Matchmaking router ko sahi prefix se include karo
+# ✅ FIX: Matchmaking router ko uske sahi module se include karo
 fastapi_app.include_router(matchmaking.router, prefix="/matchmaking", tags=["Matchmaking"]) 
 
-# ✅ FIX 2: Debate router ko single time include karo. debate.py mein base prefix /debate hai.
+# ✅ FIX: Debate router ko single time include karo
 fastapi_app.include_router(debate.router, tags=["Debate"])
+# FIX: Debate router now correctly included
+fastapi_app.include_router(debate.router, tags=["Debate"])
+fastapi_app.include_router(debate.router, prefix="/matchmaking", tags=["Matchmaking"])
+# --- END FIX ---
 
 fastapi_app.include_router(leaderboard_routes.router, tags=["Leaderboard"])
 fastapi_app.include_router(dashboard_routes.router, tags=["Dashboard"])

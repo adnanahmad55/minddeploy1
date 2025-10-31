@@ -1,13 +1,15 @@
+// Matchmaking.tsx - FINAL COMPLETE CODE (No Body in API Call)
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext'; // Path alias used
 import { toast } from '@/hooks/use-toast';
-import { Swords, Users, Clock, ArrowLeft, Bot } from 'lucide-react';
+import { Brain, Swords, Users, Zap, Clock, ArrowLeft, Bot } from 'lucide-react';
 import io, { Socket } from 'socket.io-client';
 
-// NOTE: VITE_API_URL should be set to your backend's HTTPS URL
+// NOTE: VITE_API_URL should be the base URL
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface Opponent {
@@ -22,226 +24,274 @@ const Matchmaking = () => {
     const navigate = useNavigate();
     const [isSearching, setIsSearching] = useState(false);
     const [searchTime, setSearchTime] = useState(0);
-    const [topic, setTopic] = useState<string>('');
-    const [statusMessage, setStatusMessage] = useState('Select an opponent type.');
-    
+    const [topic, setTopic] = useState<string>(''); // To display the topic while searching
     const socketRef = useRef<Socket | null>(null);
     const timerRef = useRef<number | null>(null);
 
-    // --- Helper Functions ---
-    const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
-    };
+    // --- Socket.IO Connection Setup ---
+    useEffect(() => {
+        // Only connect if user is logged in
+        if (!socketRef.current && user && token) {
+             console.log("Setting up Socket.IO connection for matchmaking...");
+             socketRef.current = io(API_BASE, {
+                auth: { token: token },      // Send token for authentication
+                transports: ['polling']      // Force polling
+            });
 
+            // --- Event Listeners ---
+            socketRef.current.on('connect', () => {
+                console.log("Socket.IO connected successfully using Polling.");
+                // Emit user_online AFTER connecting to register presence
+                if (user) {
+                     socketRef.current?.emit('user_online', {
+                        userId: user.id,
+                        username: user.username,
+                        elo: user.elo
+                    });
+                     console.log("Emitted user_online event.");
+                }
+            });
+
+            socketRef.current.on('match_found', (data) => {
+                console.log('Match found event received:', data);
+                stopSearching(); // Stop the timer and searching state
+                toast({
+                    title: "Match Found!",
+                    description: `Debating ${data.opponent?.username || 'opponent'} on: ${data.topic || 'topic'}`,
+                });
+                // Navigate to the debate page with necessary state
+                navigate('/debate', { state: { debateId: data.debate_id, opponent: data.opponent, topic: data.topic } });
+            });
+
+            socketRef.current.on('connect_error', (error) => {
+                console.error("Matchmaking Socket Connection Error:", error);
+                toast({ title: "Connection Error", description: `Failed to connect: ${error.message}`, variant: "destructive" });
+                stopSearching(); // Stop searching if connection fails
+            });
+
+             socketRef.current.on('error', (errorData) => {
+                  console.error("Matchmaking Socket Server Error:", errorData);
+                  toast({ title: "Server Error", description: errorData?.detail || "An error occurred.", variant: "destructive"})
+                  // Decide if searching should stop based on the error
+             });
+
+             // Listener for debugging online users list (optional)
+             // socketRef.current.on('online_users', (usersList) => {
+             //      console.log("DEBUG: Received online users list:", usersList);
+             // });
+        }
+
+        // --- Cleanup Function ---
+        return () => {
+            if (socketRef.current) {
+                console.log("Cleaning up matchmaking socket connection.");
+                // Notify backend user is going offline
+                socketRef.current.emit('user_offline', { userId: user?.id });
+                // If user was searching, cancel it
+                socketRef.current.emit('cancel_matchmaking', { userId: user?.id });
+                // Remove listeners and disconnect
+                socketRef.current.off('connect');
+                socketRef.current.off('match_found');
+                socketRef.current.off('connect_error');
+                socketRef.current.off('error');
+                // socketRef.current.off('online_users'); // Remove optional listener
+                socketRef.current.disconnect();
+                socketRef.current = null; // Clear the ref
+            }
+        };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user, token]); // Dependencies: Re-run if user or token changes
+
+
+    // --- Timer Logic ---
+    useEffect(() => {
+        if (isSearching) {
+            // Start timer when searching begins
+            timerRef.current = setInterval(() => {
+                setSearchTime(prev => prev + 1);
+            }, 1000) as unknown as number;
+        } else if (timerRef.current) {
+            // Clear timer if searching stops
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+        }
+        // Cleanup interval on unmount or when isSearching changes
+        return () => {
+            if (timerRef.current) {
+                clearInterval(timerRef.current);
+            }
+        };
+    }, [isSearching]); // Dependency: Run when isSearching changes
+
+
+    // --- Stop Searching Function ---
     const stopSearching = () => {
-        stopTimer();
-        setIsSearching(false);
-        setSearchTime(0);
-        setTopic('');
-        setStatusMessage('Search cancelled.');
+        setIsSearching(false); // Update state to stop showing search UI
+        setSearchTime(0);      // Reset timer display
+        setTopic('');          // Clear topic display
+        // Notify backend to remove user from queue
         if (socketRef.current) {
             socketRef.current.emit('cancel_matchmaking', { userId: user?.id });
             console.log("Emitted cancel_matchmaking event.");
         }
-    };
-    
-    const startTimer = () => {
-        setSearchTime(0);
-        if (timerRef.current) clearInterval(timerRef.current);
-        timerRef.current = window.setInterval(() => {
-            setSearchTime(prev => prev + 1);
-        }, 1000) as unknown as number;
-    };
-
-    const stopTimer = () => {
+        // Clear the interval timer
         if (timerRef.current) {
             clearInterval(timerRef.current);
             timerRef.current = null;
         }
     };
 
-    // --- Socket.IO Connection Setup ---
-    useEffect(() => {
-        if (!socketRef.current && user && token) {
-             const socketUrl = API_BASE.startsWith('http') ? API_BASE : `https://${API_BASE}`;
-             
-             console.log("Setting up Socket.IO connection for matchmaking...");
-             
-             socketRef.current = io(socketUrl, {
-                auth: { token: token },
-                // ✅ CRITICAL FIX: Only use WebSocket to bypass 400 xhr poll error
-                transports: ['websocket'], 
-                upgrade: false             
-            });
+    // --- Format Time Helper ---
+    const formatTime = (seconds: number) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    };
 
-            // --- Event Listeners ---
-            socketRef.current.on('connect', () => {
-                 console.log("Socket.IO connected successfully.");
-                 // Emit user_online AFTER connecting to register presence
-                 if (user) {
-                      socketRef.current?.emit('user_online', {
-                          userId: user.id,
-                          username: user.username,
-                          elo: user.elo
-                      });
-                      console.log("Emitted user_online event.");
-                 }
-            });
-
-            socketRef.current.on('match_found', (data: { debate_id: number; topic: string; opponent: Opponent }) => {
-                console.log('Match found event received:', data);
-                stopSearching();
-                toast({
-                    title: "Match Found!",
-                    description: `Debating ${data.opponent?.username || 'opponent'} on: ${data.topic || 'topic'}`,
-                });
-                // Navigate to the debate page
-                navigate(`/debate/${data.debate_id}`); 
-            });
-
-            socketRef.current.on('connect_error', (error) => {
-                console.error("Matchmaking Socket Connection Error:", error);
-                toast({ title: "Connection Error", description: `Failed to connect: ${error.message}`, variant: "destructive" });
-                stopSearching(); 
-            });
-
-            socketRef.current.on('error', (errorData) => {
-                 console.error("Matchmaking Socket Server Error:", errorData);
-                 toast({ title: "Server Error", description: errorData?.detail || "An error occurred.", variant: "destructive"})
-                 stopSearching();
-             });
+    // --- Start Matchmaking Function (Handles button clicks) ---
+    const startMatchmaking = async (isAI: boolean) => {
+        // Prevent starting if already searching or user not loaded
+        if (!user || !token || isSearching) {
+             console.warn("Cannot start matchmaking:", { user_exists: !!user, token_exists: !!token, isSearching });
+             return;
         }
 
-        // --- Cleanup Function ---
-        return () => {
-            if (socketRef.current) {
-                 console.log("Cleaning up matchmaking socket connection.");
-                 socketRef.current.emit('user_offline', { userId: user?.id });
-                 socketRef.current.emit('cancel_matchmaking', { userId: user?.id });
-                 
-                 // Remove listeners and disconnect
-                 socketRef.current.off('connect');
-                 socketRef.current.off('match_found');
-                 socketRef.current.off('connect_error');
-                 socketRef.current.off('error');
-                 socketRef.current.disconnect();
-                 socketRef.current = null;
-            }
-            stopTimer(); // Ensure timer stops on unmount
-        };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [user, token, navigate, API_BASE]); 
-
-
-    // --- Start Matchmaking Function ---
-    const startMatchmaking = async (isAI: boolean) => {
-        if (!user || !token || isSearching) return;
-
-        setIsSearching(true);
-        startTimer();
-        setStatusMessage(isAI ? 'Initializing AI Debate...' : 'Searching for Human Opponent...');
+        setIsSearching(true); // Show searching UI
+        setSearchTime(0);      // Reset timer
+        setTopic('');          // Clear topic display initially
+        console.log(`DEBUG: Starting matchmaking (isAI: ${isAI})`);
 
         try {
+            // Determine the correct API endpoint based on AI choice
             const endpoint = isAI ? `${API_BASE}/ai-debate/start` : `${API_BASE}/debate/start-human`;
-            
-            // Call the backend API to initiate the debate creation
+            console.log(`DEBUG: Calling API endpoint: ${endpoint}`);
+
+            // Call the backend API to initiate the debate creation (backend chooses topic)
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
+                    // No 'Content-Type' needed if body is empty, but can keep for consistency
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`, 
+                    'Authorization': `Bearer ${token}`, // Send auth token
                 },
+                // --- CRITICAL FIX: Removed body for BOTH AI and Human ---
+                // Backend now selects the topic randomly.
+                // --- END FIX ---
             });
+            console.log(`DEBUG: API response status: ${response.status}`);
 
+            // Handle API errors (e.g., 401 Unauthorized, 500 Server Error)
             if (!response.ok) {
+                 console.error("DEBUG: API response not OK");
                  let errorDetail = `Matchmaking start failed: ${response.status}`;
-                 try { const err = await response.json(); errorDetail = err.detail || errorDetail; } catch (e) {}
-                 throw new Error(errorDetail); 
+                 try { const err = await response.json(); errorDetail = err.detail || errorDetail; } catch (e) { console.warn("Could not parse error JSON"); }
+                 throw new Error(errorDetail); // Throw error to be caught below
             }
 
+            // If API call is successful, get the debate data (including ID and topic)
             const data = await response.json();
-            
+            console.log("DEBUG: API response data:", data);
+
+            // Basic validation of response data
+            if (!data || typeof data.id !== 'number' || typeof data.topic !== 'string') {
+                 console.error("Invalid data structure from API:", data);
+                 throw new Error("Received invalid data from server.");
+            }
+
+            // Set the topic received from the backend to display while searching (for human)
+            setTopic(data.topic);
+
+            // Handle AI vs Human path
             if (isAI) {
-                // For AI matches, navigate immediately
-                stopSearching();
-                navigate(`/debate/${data.id}`, { 
-                    state: { 
-                        debateId: data.id, 
-                        opponent: { id: '1', username: 'AI Bot', elo: 1200, is_ai: true }, 
-                        topic: data.topic 
-                    } 
-                });
+                // For AI matches, navigate immediately using the received data
+                 console.log("DEBUG: Handling AI match navigation...");
+                 stopSearching(); // Stop searching UI/timer
+                 navigate('/debate', {
+                     state: {
+                         debateId: data.id, // Pass the debate ID
+                         opponent: { id: '1', username: 'AI Bot', elo: 1200, is_ai: true }, // Define AI opponent
+                         topic: data.topic // Pass the topic
+                     }
+                 });
             } else {
                 // For human matches, emit event to join the queue with the debate ID
-                setTopic(data.topic); // Display the chosen topic
-                setStatusMessage('Opponent search initiated. Please wait...');
-                 
-                if (socketRef.current?.connected) {
-                    socketRef.current?.emit('join_matchmaking_queue', {
+                 console.log("DEBUG: Handling Human match, emitting join_matchmaking_queue...");
+                 // Check if socket is connected before emitting
+                 if (socketRef.current?.connected) {
+                     socketRef.current?.emit('join_matchmaking_queue', {
                         userId: user.id,
                         elo: user.elo,
                         debateId: data.id // Use debateId from backend response
                     });
-                } else {
-                     toast({title:"Connection Error", description:"Socket not ready. Try again.", variant:"destructive"});
-                     stopSearching(); 
-                }
+                     console.log("DEBUG: Emitted join_matchmaking_queue.");
+                 } else {
+                      console.error("Cannot emit join_matchmaking_queue: Socket not connected.");
+                      toast({title:"Connection Error", description:"Cannot join queue, not connected.", variant:"destructive"});
+                      stopSearching(); // Stop if socket isn't ready
+                 }
             }
 
         } catch (error) {
-            console.error("Matchmaking initiation failed:", error);
+            // Catch errors from fetch or data processing
+            console.error("Matchmaking initiation failed inside catch block:", error);
             toast({
                 title: "Matchmaking Error",
                 description: `Could not start search: ${error instanceof Error ? error.message : "Unknown error"}`,
                 variant: "destructive",
             });
-            stopSearching(); 
+            stopSearching(); // Ensure searching stops on any error
         }
     };
 
     // --- Render ---
     return (
-        <div className="min-h-screen bg-gradient-bg flex items-center justify-center p-4 text-white">
+        <div className="min-h-screen bg-gradient-bg flex items-center justify-center p-4 text-white"> {/* Base text color */}
             {/* Back Button */}
             <div className="absolute top-4 left-4">
-                <Button variant="ghost" onClick={() => navigate('/dashboard')} disabled={isSearching}>
+                <Button variant="ghost" onClick={() => navigate('/dashboard')} disabled={isSearching}> {/* Disable back if searching */}
                     <ArrowLeft className="mr-2 h-4 w-4" /> Back
                 </Button>
             </div>
 
             {/* Main Card */}
-            <Card className="max-w-md w-full bg-card/50 border-border/50 p-8 shadow-cyber">
+            <Card className="max-w-md w-full bg-card/50 border-border/50 p-6 sm:p-8 shadow-cyber"> {/* Added responsive padding */}
+                {/* Header */}
                 <CardHeader className="text-center border-b border-border/50 pb-4 mb-6">
-                    <CardTitle className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent flex items-center justify-center">
-                        <Swords className="mr-3 h-7 w-7" /> Neural Matchmaking
+                    <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent flex items-center justify-center">
+                        <Swords className="mr-2 sm:mr-3 h-6 w-6 sm:h-7 sm:h-7" /> Neural Matchmaking
                     </CardTitle>
                 </CardHeader>
 
+                {/* Content */}
                 <CardContent className="space-y-6">
+                    {/* User Info */}
                     <div className="text-center">
                         <p className="text-lg font-semibold text-foreground">
                             Current ELO: {user?.elo ?? '...'}
                         </p>
+                        <p className="text-sm text-muted-foreground">
+                            Mind Tokens: {user?.mind_tokens ?? '...'}
+                        </p>
                     </div>
 
+                    {/* Conditional Rendering: Buttons or Searching UI */}
                     {!isSearching ? (
                         // Buttons Section
                         <div className="space-y-4">
                             <Button
                                 size="lg"
-                                className="w-full bg-cyber-red hover:bg-cyber-red/80 text-white font-semibold"
+                                className="w-full bg-cyber-red hover:bg-cyber-red/80 text-white font-semibold" // Ensure text is visible
                                 onClick={() => startMatchmaking(false)}
-                                disabled={!user}
+                                disabled={!user} // Disable if user data isn't loaded yet
                             >
                                 <Users className="mr-2 h-5 w-5" /> Debate a Human Opponent
                             </Button>
                             <Button
                                 size="lg"
-                                className="w-full bg-cyber-blue hover:bg-cyber-blue/80 text-white font-semibold"
+                                variant="secondary" // Use secondary styling
+                                className="w-full bg-cyber-blue hover:bg-cyber-blue/80 text-white font-semibold" // Ensure text is visible
                                 onClick={() => startMatchmaking(true)}
-                                disabled={!user}
+                                disabled={!user} // Disable if user data isn't loaded yet
                             >
                                 <Bot className="mr-2 h-5 w-5" /> Debate the AI
                             </Button>
@@ -249,22 +299,26 @@ const Matchmaking = () => {
                     ) : (
                         // Searching Section
                         <div className="text-center space-y-4">
-                            <div className="relative w-20 h-20 mx-auto">
+                            {/* Animated Spinner */}
+                            <div className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto">
                                 <div className="absolute inset-0 border-4 border-cyber-gold/30 rounded-full"></div>
                                 <div className="absolute inset-0 border-4 border-cyber-gold border-t-transparent rounded-full animate-spin"></div>
                                 <div className="absolute inset-0 flex items-center justify-center text-cyber-gold">
-                                    <Swords className="h-10 w-10 animate-pulse" />
+                                    <Swords className="h-8 w-8 sm:h-10 sm:w-10 animate-pulse" />
                                 </div>
                             </div>
+                            {/* Status Text */}
                             <p className="text-lg font-semibold text-foreground">
-                                {statusMessage}
+                                Searching for Opponent...
                             </p>
                             <p className="text-sm text-muted-foreground">
                                 Topic: {topic || 'Determining topic...'}
                             </p>
+                            {/* Timer */}
                             <p className="text-sm font-mono text-cyber-red flex items-center justify-center">
                                 <Clock className="h-4 w-4 mr-1" /> Elapsed: {formatTime(searchTime)}
                             </p>
+                            {/* Cancel Button */}
                             <Button variant="outline" onClick={stopSearching} className="w-full">
                                 Cancel Search
                             </Button>
