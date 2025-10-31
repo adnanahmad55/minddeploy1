@@ -11,7 +11,7 @@ import traceback
 
 # Define the list of allowed origins explicitly - CRITICAL
 origins = [
-    
+    "https://minddeploy1-production.up.railway.app/",
     "https://striking-laughter-production-3040.up.railway.app",  # Frontend
     # Backend own URL
 ]
