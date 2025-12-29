@@ -12,7 +12,7 @@ import traceback
 # Define the list of allowed origins explicitly - CRITICAL
 origins = [
     
-    "https://virtuous-harmony-production-273c.up.railway.app",  # Frontend
+    "https://minddeploy1-1.onrender.com",  # Frontend
     # Backend own URL
 ]
 # Create FastAPI instance
