@@ -1,8 +1,9 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 
 # Helper function to convert datetime objects to ISO format strings
+# Ab models se IST aayega, toh ye +05:30 offset ke saath string banayega
 def datetime_to_iso_str(dt: datetime) -> str:
     return dt.isoformat()
 
@@ -25,9 +26,10 @@ class UserOut(BaseModel):
     email: str
     elo: Optional[int] = 0
     mind_tokens: Optional[int] = 0
+    # Agar created_at dikhana chahte ho toh:
+    # created_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # --- STATS & GAMIFICATION SCHEMAS ---
 class UserStats(BaseModel):
@@ -35,8 +37,7 @@ class UserStats(BaseModel):
     debates_lost: int
     debates_competed: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
         
 class DebateHistory(BaseModel):
     id: int
@@ -45,16 +46,14 @@ class DebateHistory(BaseModel):
     winner: Optional[str] 
     date: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
         
 class Badge(BaseModel):
     id: int
     name: str
     description: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class Streak(BaseModel):
     id: int
@@ -62,16 +61,14 @@ class Streak(BaseModel):
     current_streak: int
     max_streak: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class Forum(BaseModel):
     id: int
     name: str
     description: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class Thread(BaseModel):
     id: int
@@ -79,8 +76,7 @@ class Thread(BaseModel):
     forum_id: int
     user_id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ThreadCreate(BaseModel):
     title: str
@@ -92,14 +88,13 @@ class Post(BaseModel):
     thread_id: int
     user_id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class PostCreate(BaseModel):
     content: str
     thread_id: int
 
-class Analysis(BaseModel): # <<< FIX: Analysis class is added back
+class Analysis(BaseModel):
     analysis: str
 
 # ------------------ DEBATE SCHEMAS ------------------ #
@@ -115,17 +110,16 @@ class DebateCreate(BaseModel):
 class DebateOut(BaseModel):
     id: int
     player1_id: int
-    # CRITICAL FIX: Make player2_id Optional[int] to accept None during matchmaking
     player2_id: Optional[int] 
     topic: str
     winner: Optional[str] = None
     timestamp: datetime
 
-    class Config:
-        from_attributes = True
-        json_encoders = {
-            datetime: datetime_to_iso_str
-        }
+    # Pydantic V2 uses model_config instead of class Config
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_encoders={datetime: datetime_to_iso_str}
+    )
 
 
 # ------------------ MESSAGE SCHEMAS ------------------ #
@@ -143,11 +137,10 @@ class MessageOut(BaseModel):
     timestamp: datetime 
     sender_type: str
 
-    class Config:
-        from_attributes = True
-        json_encoders = {
-            datetime: datetime_to_iso_str
-        }
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_encoders={datetime: datetime_to_iso_str}
+    )
 
 # ------------------ LEADERBOARD SCHEMAS ------------------ #
 class LeaderboardEntry(BaseModel):
@@ -155,5 +148,4 @@ class LeaderboardEntry(BaseModel):
     elo: int
     mind_tokens: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
