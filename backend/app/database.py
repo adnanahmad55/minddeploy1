@@ -25,3 +25,4 @@ def get_db():
 
 # Make the engine accessible for creating sessions in async contexts
 get_db.engine = engine
+#supabase passwrod =TAQdewLnJiASO7Fj;
