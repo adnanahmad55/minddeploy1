@@ -17,7 +17,7 @@ origins = [
 ]
 from app.database import engine, Base
 from app import models  # Ensure models are imported so Base knows about them
-
+Base.metadata.create_all(bind=engine)
 # Ye line check karegi aur jo tables mi
 # Create FastAPI instance
 fastapi_app = FastAPI()
