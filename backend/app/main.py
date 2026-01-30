@@ -15,6 +15,10 @@ origins = [
     "https://minddeploy1-1.onrender.com",  # Frontend
     # Backend own URL
 ]
+from app.database import engine, Base
+from app import models  # Ensure models are imported so Base knows about them
+
+# Ye line check karegi aur jo tables mi
 # Create FastAPI instance
 fastapi_app = FastAPI()
 
